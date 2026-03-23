@@ -13,17 +13,40 @@
   --lime:#a8e63d;--lime2:#c6f255;--lime3:rgba(168,230,61,.13);--lime4:rgba(168,230,61,.07);
   --orange:#f97316;--red:#ef4444;--blue:#3b82f6;
   --text:#e8f5ec;--muted:#7aac88;--dim:#3d5e47;
+  --sb-w:248px;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;overflow-x:hidden}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @keyframes pls{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes slideIn{from{transform:translateX(-100%)}to{transform:translateX(0)}}
+
+/* ── OVERLAY MOBILE ── */
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:49;backdrop-filter:blur(3px)}
+.sb-overlay.open{display:block}
+
+/* ── MOBILE TOPBAR ── */
+.mob-top{display:none;position:fixed;top:0;left:0;right:0;z-index:60;
+  height:56px;background:var(--bg2);border-bottom:1px solid rgba(168,230,61,.1);
+  align-items:center;padding:0 16px;gap:12px}
+.mob-top .logo{display:flex;align-items:center;gap:8px;font-family:'Syne',sans-serif;font-weight:800;font-size:1rem}
+.mob-top .logo .ico{width:28px;height:28px;border-radius:7px;background:var(--lime);display:flex;align-items:center;justify-content:center;font-size:.7rem}
+.mob-top .logo span{color:var(--lime)}
+.mob-top .logo .badge{margin-left:4px;padding:1px 6px;border-radius:4px;background:var(--lime3);color:var(--lime);font-size:.55rem;font-weight:700;letter-spacing:.5px}
+.mob-top .spacer{flex:1}
+.mob-top .ap-av-sm{width:30px;height:30px;border-radius:50%;background:var(--lime);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--bg);font-size:.72rem;overflow:hidden;flex-shrink:0}
+.mob-top .ap-av-sm img{width:100%;height:100%;object-fit:cover}
+.hamburger{width:36px;height:36px;border:none;background:rgba(168,230,61,.08);border-radius:9px;
+  cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;flex-shrink:0}
+.hamburger span{display:block;width:16px;height:1.5px;background:var(--lime);border-radius:2px;transition:all .25s}
 
 /* ── SIDEBAR ── */
-.sb{width:248px;min-height:100vh;background:var(--bg2);
+.sb{width:var(--sb-w);min-height:100vh;background:var(--bg2);
   border-right:1px solid rgba(168,230,61,.09);
-  display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:50}
+  display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:50;
+  transition:transform .28s cubic-bezier(.4,0,.2,1)}
 .sb-logo{display:flex;align-items:center;gap:10px;padding:20px 18px 18px;
   border-bottom:1px solid rgba(168,230,61,.07);
   font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:800}
@@ -32,12 +55,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 .sb-logo span{color:var(--lime)}
 .sb-badge{margin-left:auto;padding:2px 7px;border-radius:5px;
   background:var(--lime3);color:var(--lime);font-size:.6rem;font-weight:700;letter-spacing:.5px}
+.sb-close{display:none;width:30px;height:30px;border:none;background:rgba(255,255,255,.05);
+  border-radius:7px;cursor:pointer;color:var(--muted);font-size:.9rem;
+  align-items:center;justify-content:center;margin-left:auto;flex-shrink:0}
 .sb-nav{flex:1;padding:14px 0;overflow-y:auto}
 .sb-sec{padding:9px 18px 4px;font-size:.63rem;font-weight:700;color:var(--dim);
   letter-spacing:1.2px;text-transform:uppercase;opacity:.7}
 .ni{display:flex;align-items:center;gap:9px;padding:10px 18px;color:var(--muted);
   font-size:.83rem;font-weight:500;cursor:pointer;transition:all .2s;
-  border-left:3px solid transparent}
+  border-left:3px solid transparent;user-select:none}
 .ni .ic{font-size:.95rem;width:18px;text-align:center}
 .ni:hover{color:var(--text);background:var(--lime4)}
 .ni.on{color:var(--lime);background:var(--lime4);border-left-color:var(--lime);font-weight:600}
@@ -56,7 +82,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 .btn-lo:hover{background:rgba(239,68,68,.14)}
 
 /* ── MAIN ── */
-.main{margin-left:248px;flex:1;padding:28px;min-height:100vh}
+.main{margin-left:var(--sb-w);flex:1;padding:28px;min-height:100vh;transition:margin .28s}
 .sec{display:none;animation:fadeUp .28s ease}
 .sec.on{display:block}
 .pg-hd{margin-bottom:24px}
@@ -86,16 +112,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 
 /* TABLE */
-.tbl-w{border-radius:13px;border:1px solid rgba(168,230,61,.09);overflow:hidden}
-table{width:100%;border-collapse:collapse}
+.tbl-w{border-radius:13px;border:1px solid rgba(168,230,61,.09);overflow:hidden;overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;min-width:420px}
 thead{background:var(--lime4)}
 th{padding:11px 14px;text-align:left;font-size:.68rem;letter-spacing:.8px;
   text-transform:uppercase;color:var(--muted);font-weight:700;
-  border-bottom:1px solid rgba(168,230,61,.09)}
+  border-bottom:1px solid rgba(168,230,61,.09);white-space:nowrap}
 td{padding:11px 14px;font-size:.83rem;border-bottom:1px solid rgba(255,255,255,.04)}
 tr:last-child td{border:none}
 tr:hover td{background:rgba(168,230,61,.025)}
-.badge{display:inline-flex;padding:3px 9px;border-radius:100px;font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.badge{display:inline-flex;padding:3px 9px;border-radius:100px;font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;align-items:center;gap:5px}
 .b-lime{background:var(--lime3);color:var(--lime)}
 .b-org{background:rgba(249,115,22,.12);color:var(--orange)}
 .b-red{background:rgba(239,68,68,.1);color:#fca5a5}
@@ -107,6 +133,10 @@ tr:hover td{background:rgba(168,230,61,.025)}
   color:var(--bg);font-size:.7rem;flex-shrink:0}
 .av-nm{font-weight:600;font-size:.83rem}
 .av-em{font-size:.7rem;color:var(--muted)}
+
+/* VIDEO PREVIEW in table */
+.face-vid-thumb{width:52px;height:40px;border-radius:7px;object-fit:cover;cursor:pointer;border:1px solid rgba(168,230,61,.2);vertical-align:middle}
+.face-vid-thumb:hover{border-color:var(--lime)}
 
 /* MAP */
 #map-box{height:270px;border-radius:13px;overflow:hidden;
@@ -141,6 +171,25 @@ tr:hover td{background:rgba(168,230,61,.025)}
   margin-top:13px;font-size:.83rem;color:var(--lime);font-weight:500}
 .g-dot{width:7px;height:7px;border-radius:50%;background:var(--lime);animation:pls 2s infinite;flex-shrink:0}
 
+/* VIDEO MODAL */
+.vid-ov{position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.9);
+  backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center;
+  padding:20px;opacity:0;pointer-events:none;transition:opacity .28s}
+.vid-ov.open{opacity:1;pointer-events:all}
+.vid-modal{background:var(--bg2);border:1px solid rgba(168,230,61,.18);border-radius:22px;
+  padding:22px;max-width:520px;width:100%;position:relative;
+  transform:scale(.94);transition:transform .28s}
+.vid-ov.open .vid-modal{transform:scale(1)}
+.vid-modal video{width:100%;border-radius:13px;background:#000;max-height:340px}
+.vid-modal-x{position:absolute;top:12px;right:12px;width:30px;height:30px;border-radius:8px;
+  background:rgba(255,255,255,.06);border:none;cursor:pointer;color:var(--muted);font-size:.9rem;
+  display:flex;align-items:center;justify-content:center;transition:all .2s}
+.vid-modal-x:hover{background:rgba(239,68,68,.18);color:var(--red)}
+.vid-info{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.vi-box{background:var(--card2);border-radius:11px;padding:12px 14px}
+.vi-l{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.vi-v{font-size:.85rem;font-weight:600}
+
 /* TOASTS */
 .toasts{position:fixed;bottom:18px;right:18px;z-index:9999;
   display:flex;flex-direction:column;gap:9px}
@@ -150,34 +199,84 @@ tr:hover td{background:rgba(168,230,61,.025)}
 .t-err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.35);color:#fca5a5}
 .spinner{width:15px;height:15px;border:2px solid transparent;border-top-color:currentColor;border-radius:50%;animation:spin .7s linear infinite}
 
-@media(max-width:880px){
-  .sb{width:210px}
-  .main{margin-left:210px;padding:18px}
-  .mc-grid{grid-template-columns:1fr 1fr}
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  :root{--sb-w:240px}
+  .sb{transform:translateX(-100%)}
+  .sb.open{transform:translateX(0)}
+  .sb-close{display:flex}
+  .mob-top{display:flex}
+  .main{margin-left:0;padding:70px 16px 100px}
+  .mc-grid{grid-template-columns:1fr 1fr;gap:10px}
   .g2{grid-template-columns:1fr}
   .fr{grid-template-columns:1fr}
+  .pg-title{font-size:1.35rem}
+  .pg-hd-row{flex-direction:column;align-items:flex-start}
+  .pg-hd-row > *{width:100%}
+  .pg-hd-row .fi{width:100%}
+  .pg-hd-row .btn{width:100%;justify-content:center}
+  .pg-hd-row > div:last-child{display:flex;flex-direction:column;gap:8px}
 }
+@media(max-width:520px){
+  .mc-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .mc{padding:14px 10px}
+  .mc-n{font-size:1.5rem}
+  .card{padding:16px}
+}
+
+/* Bottom nav for mobile */
+.bot-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:55;
+  background:var(--bg2);border-top:1px solid rgba(168,230,61,.09);
+  padding:8px 4px 10px;gap:0}
+@media(max-width:900px){
+  .bot-nav{display:flex}
+}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:6px 4px;cursor:pointer;color:var(--muted);transition:color .2s;
+  font-size:.58rem;font-weight:500;letter-spacing:.2px;text-align:center;
+  border-top:2px solid transparent}
+.bn-item .ic{font-size:1.1rem;line-height:1}
+.bn-item:hover{color:var(--text)}
+.bn-item.on{color:var(--lime);border-top-color:var(--lime)}
 </style>
 </head>
 <body>
 
+<!-- MOBILE OVERLAY -->
+<div class="sb-overlay" id="sb-overlay" onclick="closeSidebar()"></div>
+
+<!-- MOBILE TOPBAR -->
+<div class="mob-top">
+  <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="logo">
+    <div class="ico">🎓</div>
+    UTT<span>LOKO</span>
+    <span class="badge">ADMIN</span>
+  </div>
+  <div class="spacer"></div>
+  <div class="ap-av-sm" id="mob-av"><span id="mob-init">A</span></div>
+</div>
+
 <!-- SIDEBAR -->
-<aside class="sb">
+<aside class="sb" id="sidebar">
   <div class="sb-logo">
     <div class="sb-ico">🎓</div>
     UTT<span>LOKO</span>
     <span class="sb-badge">ADMIN</span>
+    <button class="sb-close" onclick="closeSidebar()">✕</button>
   </div>
   <nav class="sb-nav">
     <div class="sb-sec">Principal</div>
-    <div class="ni on" onclick="goSec('dashboard',this)"><span class="ic">📊</span>Tableau de bord</div>
-    <div class="ni" onclick="goSec('location',this)"><span class="ic">📍</span>Localisation GPS</div>
+    <div class="ni on" data-sec="dashboard" onclick="goSec('dashboard',this)"><span class="ic">📊</span>Tableau de bord</div>
+    <div class="ni" data-sec="location" onclick="goSec('location',this)"><span class="ic">📍</span>Localisation GPS</div>
     <div class="sb-sec">Gestion</div>
-    <div class="ni" onclick="goSec('users',this)"><span class="ic">👥</span>Enseignants</div>
-    <div class="ni" onclick="goSec('clockins',this)"><span class="ic">⏱</span>Pointages</div>
-    <div class="ni" onclick="goSec('retards',this)"><span class="ic">⚠️</span>Retards & Explic.</div>
+    <div class="ni" data-sec="users" onclick="goSec('users',this)"><span class="ic">👥</span>Enseignants</div>
+    <div class="ni" data-sec="clockins" onclick="goSec('clockins',this)"><span class="ic">⏱</span>Pointages</div>
+    <div class="ni" data-sec="retards" onclick="goSec('retards',this)"><span class="ic">⚠️</span>Retards & Explic.</div>
     <div class="sb-sec">Système</div>
-    <div class="ni" onclick="goSec('settings',this)"><span class="ic">⚙️</span>Paramètres</div>
+    <div class="ni" data-sec="settings" onclick="goSec('settings',this)"><span class="ic">⚙️</span>Paramètres</div>
     <div class="ni" onclick="location.href='index.html'"><span class="ic">🏠</span>Accueil</div>
   </nav>
   <div class="sb-foot">
@@ -188,6 +287,25 @@ tr:hover td{background:rgba(168,230,61,.025)}
     <button class="btn-lo" onclick="doLogout()">🚪 Déconnexion</button>
   </div>
 </aside>
+
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bot-nav">
+  <div class="bn-item on" data-sec="dashboard" onclick="goSec('dashboard',this)">
+    <span class="ic">📊</span><span>Tableau</span>
+  </div>
+  <div class="bn-item" data-sec="clockins" onclick="goSec('clockins',this)">
+    <span class="ic">⏱</span><span>Pointages</span>
+  </div>
+  <div class="bn-item" data-sec="users" onclick="goSec('users',this)">
+    <span class="ic">👥</span><span>Équipe</span>
+  </div>
+  <div class="bn-item" data-sec="retards" onclick="goSec('retards',this)">
+    <span class="ic">⚠️</span><span>Retards</span>
+  </div>
+  <div class="bn-item" data-sec="settings" onclick="goSec('settings',this)">
+    <span class="ic">⚙️</span><span>Config</span>
+  </div>
+</nav>
 
 <!-- MAIN -->
 <main class="main">
@@ -201,7 +319,7 @@ tr:hover td{background:rgba(168,230,61,.025)}
     </div>
     <div class="mc-grid">
       <div class="mc lime"><div class="mc-n" id="mc-t">—</div><div class="mc-l">Enseignants</div></div>
-      <div class="mc lime"><div class="mc-n" id="mc-p">—</div><div class="mc-l">Présents aujourd'hui</div></div>
+      <div class="mc lime"><div class="mc-n" id="mc-p">—</div><div class="mc-l">Présents</div></div>
       <div class="mc org"><div class="mc-n" id="mc-l">—</div><div class="mc-l">Retards</div></div>
       <div class="mc blue"><div class="mc-n" id="mc-e">—</div><div class="mc-l">Explications</div></div>
     </div>
@@ -262,7 +380,9 @@ tr:hover td{background:rgba(168,230,61,.025)}
         <div class="pg-title">Gestion des enseignants</div>
         <div class="pg-sub">Liste complète des comptes inscrits dans Firestore</div>
       </div>
-      <input type="text" class="fi" style="width:210px" id="srch" placeholder="🔍 Rechercher..." oninput="filterUsers()">
+      <div>
+        <input type="text" class="fi" id="srch" placeholder="🔍 Rechercher..." oninput="filterUsers()">
+      </div>
     </div>
     <div class="card">
       <div class="tbl-w">
@@ -282,16 +402,18 @@ tr:hover td{background:rgba(168,230,61,.025)}
         <div class="pg-title">Historique des pointages</div>
         <div class="pg-sub">Consultez et exportez les données Firestore</div>
       </div>
-      <div style="display:flex;gap:9px;align-items:center;flex-wrap:wrap">
-        <span style="font-size:.8rem;color:var(--muted)">Date :</span>
-        <input type="date" class="fi" style="width:165px" id="date-f" onchange="loadCKDate()">
-        <button class="btn btn-ol btn-sm" onclick="exportCSV()">📥 CSV</button>
+      <div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <span style="font-size:.8rem;color:var(--muted);flex-shrink:0">Date :</span>
+          <input type="date" class="fi" style="flex:1;min-width:140px" id="date-f" onchange="loadCKDate()">
+          <button class="btn btn-ol btn-sm" onclick="exportCSV()">📥 CSV</button>
+        </div>
       </div>
     </div>
     <div class="card">
       <div class="tbl-w">
         <table>
-          <thead><tr><th>Enseignant</th><th>Type</th><th>Heure</th><th>Statut</th><th>Face</th></tr></thead>
+          <thead><tr><th>Enseignant</th><th>Type</th><th>Heure</th><th>Statut</th><th>Vidéo / Face</th></tr></thead>
           <tbody id="ck-tb"><tr><td colspan="5" style="text-align:center;color:var(--muted);padding:22px">Sélectionnez une date</td></tr></tbody>
         </table>
       </div>
@@ -354,6 +476,15 @@ tr:hover td{background:rgba(168,230,61,.025)}
 
 </main>
 
+<!-- VIDEO MODAL -->
+<div class="vid-ov" id="vid-ov">
+  <div class="vid-modal">
+    <button class="vid-modal-x" onclick="closeVidModal()">✕</button>
+    <video id="vid-player" controls playsinline></video>
+    <div class="vid-info" id="vid-info"></div>
+  </div>
+</div>
+
 <div class="toasts" id="toasts"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -370,15 +501,18 @@ const app=initializeApp(FC);
 const db=getFirestore(app);
 window._db=db;
 
-/* ── Session (souple : pas de redirection forcée) ── */
+/* ── Session ── */
 const sess=sessionStorage.getItem('uttloko_user');
 const A=sess ? JSON.parse(sess) : {role:'admin',nom:'Admin',prenom:'Super',uid:'guest'};
-// Si connecté et pas admin → rediriger dashboard
 if(sess && A.role!=='admin'){location.href='dashboard.html';}
 const init=((A.prenom||'A')[0]+(A.nom||'D')[0]).toUpperCase();
 document.getElementById('ap-init').textContent=init;
+document.getElementById('mob-init').textContent=init;
 document.getElementById('ap-nm').textContent=`${A.prenom||''} ${A.nom||''}`.trim()||'Administrateur';
-if(A.photoURL)document.getElementById('ap-av').innerHTML=`<img src="${A.photoURL}">`;
+if(A.photoURL){
+  document.getElementById('ap-av').innerHTML=`<img src="${A.photoURL}">`;
+  document.getElementById('mob-av').innerHTML=`<img src="${A.photoURL}">`;
+}
 
 document.getElementById('dash-date').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 document.getElementById('date-f').value=new Date().toISOString().slice(0,10);
@@ -454,7 +588,7 @@ window.delUser=async uid=>{
   toast('Utilisateur supprimé','ok');loadUsers();
 };
 
-/* ── CLOCKINS ── */
+/* ── CLOCKINS (with video) ── */
 window.loadCKDate=async()=>{
   const dk=document.getElementById('date-f').value.replace(/-/g,'');
   const snap=await getDocs(collection(db,`clockins_${dk}`));
@@ -463,16 +597,49 @@ window.loadCKDate=async()=>{
   const rows=[];
   snap.forEach(d=>{
     const v=d.data();
-    if(v.clockin)rows.push({...v.clockin,type:'🟢 Entrée'});
-    if(v.clockout)rows.push({...v.clockout,type:'🔴 Sortie'});
+    if(v.clockin)rows.push({...v.clockin,uid:d.id,type:'🟢 Entrée'});
+    if(v.clockout)rows.push({...v.clockout,uid:d.id,type:'🔴 Sortie'});
   });
   rows.sort((a,b)=>a.tsMs-b.tsMs);
-  tbody.innerHTML=rows.map(r=>{
+  tbody.innerHTML=rows.map((r,i)=>{
     const t=new Date(r.tsMs).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
     const bs=r.late?'<span class="badge b-org">⚠ Retard</span>':'<span class="badge b-lime">✓ OK</span>';
-    const faceThumb=r.faceBase64?`<img src="${r.faceBase64}" style="width:28px;height:28px;border-radius:6px;object-fit:cover;vertical-align:middle">`:'—'; const bf=r.faceOk?`<span class="badge b-lime">✓ ${faceThumb}</span>`:'<span class="badge b-red">✗ Non</span>';
+    // Video or face column
+    let mediaTd='—';
+    if(r.faceVideoURL){
+      // Store row info for modal
+      window._ckRows=window._ckRows||{};
+      window._ckRows['r'+i]=r;
+      mediaTd=`<video class="face-vid-thumb" src="${r.faceVideoURL}" onclick="openVidModal('r${i}')" title="Cliquer pour voir"></video>`;
+    }else if(r.faceBase64){
+      mediaTd=`<img src="${r.faceBase64}" style="width:40px;height:32px;border-radius:7px;object-fit:cover;vertical-align:middle;border:1px solid rgba(168,230,61,.2)">`;
+    }
+    const bf=r.faceOk?`<span class="badge b-lime">✓ ${mediaTd}</span>`:`<span class="badge b-red">✗ Non</span>`;
     return`<tr><td>${r.userName||'—'}</td><td>${r.type}</td><td>${t}</td><td>${bs}</td><td>${bf}</td></tr>`;
   }).join('')||'<tr><td colspan="5" style="text-align:center;color:var(--muted)">Aucune entrée</td></tr>';
+};
+
+/* ── VIDEO MODAL ── */
+window.openVidModal=key=>{
+  const r=window._ckRows&&window._ckRows[key];
+  if(!r)return;
+  const p=document.getElementById('vid-player');
+  p.src=r.faceVideoURL;p.play();
+  document.getElementById('vid-info').innerHTML=`
+    <div class="vi-box"><div class="vi-l">Enseignant</div><div class="vi-v">${r.userName||'—'}</div></div>
+    <div class="vi-box"><div class="vi-l">Département</div><div class="vi-v">${r.dept||'—'}</div></div>
+    <div class="vi-box"><div class="vi-l">Type</div><div class="vi-v">${r.type||'—'}</div></div>
+    <div class="vi-box"><div class="vi-l">Heure</div><div class="vi-v">${new Date(r.tsMs).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</div></div>
+    <div class="vi-box"><div class="vi-l">Date</div><div class="vi-v">${new Date(r.tsMs).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'})}</div></div>
+    <div class="vi-box"><div class="vi-l">Statut</div><div class="vi-v">${r.late?'⚠️ Retard':'✅ À l\'heure'}</div></div>
+  `;
+  document.getElementById('vid-ov').classList.add('open');
+};
+window.closeVidModal=()=>{
+  const ov=document.getElementById('vid-ov');
+  ov.classList.remove('open');
+  const p=document.getElementById('vid-player');
+  p.pause();p.src='';
 };
 
 /* ── RETARDS ── */
@@ -487,7 +654,7 @@ async function loadRetards(){
       <td>${new Date(e.tsMs).toLocaleDateString('fr-FR')}</td>
       <td>${e.heure||'—'}</td>
       <td><span class="badge b-org">${rLabel(e.reason)}</span></td>
-      <td style="font-size:.76rem;color:var(--muted);max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.details||'—'}</td>
+      <td style="font-size:.76rem;color:var(--muted);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.details||'—'}</td>
     </tr>`;
   }).join('');
 }
@@ -618,11 +785,35 @@ initDash();loadUsers();loadRetards();loadSettings();
 </script>
 
 <script>
+/* ── SIDEBAR MOBILE ── */
+function toggleSidebar(){
+  const sb=document.getElementById('sidebar');
+  const ov=document.getElementById('sb-overlay');
+  if(sb.classList.contains('open')){closeSidebar();}
+  else{sb.classList.add('open');ov.classList.add('open');}
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sb-overlay').classList.remove('open');
+}
+
+/* ── NAVIGATION ── */
 function goSec(id,el){
   document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
-  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
   document.getElementById('s-'+id).classList.add('on');
-  el.classList.add('on');
+
+  // Sync sidebar
+  document.querySelectorAll('.ni[data-sec]').forEach(n=>{
+    n.classList.toggle('on',n.dataset.sec===id);
+  });
+  // Sync bottom nav
+  document.querySelectorAll('.bn-item[data-sec]').forEach(n=>{
+    n.classList.toggle('on',n.dataset.sec===id);
+  });
+
+  // Close sidebar on mobile
+  if(window.innerWidth<=900)closeSidebar();
+
   if(id==='clockins')window.loadCKDate&&loadCKDate();
 }
 </script>
