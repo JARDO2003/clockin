@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UTT LOKO — Administration</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{
+  --bg:#080e0a;--bg2:#0f1812;--bg3:#162019;--card:#1b2b21;--card2:#213228;
+  --lime:#a8e63d;--lime2:#c6f255;--lime3:rgba(168,230,61,.13);--lime4:rgba(168,230,61,.07);
+  --orange:#f97316;--red:#ef4444;--blue:#3b82f6;
+  --text:#e8f5ec;--muted:#7aac88;--dim:#3d5e47;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes pls{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* ── SIDEBAR ── */
+.sb{width:248px;min-height:100vh;background:var(--bg2);
+  border-right:1px solid rgba(168,230,61,.09);
+  display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:50}
+.sb-logo{display:flex;align-items:center;gap:10px;padding:20px 18px 18px;
+  border-bottom:1px solid rgba(168,230,61,.07);
+  font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:800}
+.sb-ico{width:32px;height:32px;border-radius:9px;background:var(--lime);
+  display:flex;align-items:center;justify-content:center;font-size:.82rem;flex-shrink:0}
+.sb-logo span{color:var(--lime)}
+.sb-badge{margin-left:auto;padding:2px 7px;border-radius:5px;
+  background:var(--lime3);color:var(--lime);font-size:.6rem;font-weight:700;letter-spacing:.5px}
+.sb-nav{flex:1;padding:14px 0;overflow-y:auto}
+.sb-sec{padding:9px 18px 4px;font-size:.63rem;font-weight:700;color:var(--dim);
+  letter-spacing:1.2px;text-transform:uppercase;opacity:.7}
+.ni{display:flex;align-items:center;gap:9px;padding:10px 18px;color:var(--muted);
+  font-size:.83rem;font-weight:500;cursor:pointer;transition:all .2s;
+  border-left:3px solid transparent}
+.ni .ic{font-size:.95rem;width:18px;text-align:center}
+.ni:hover{color:var(--text);background:var(--lime4)}
+.ni.on{color:var(--lime);background:var(--lime4);border-left-color:var(--lime);font-weight:600}
+.sb-foot{padding:14px 18px;border-top:1px solid rgba(168,230,61,.07)}
+.admin-pill{display:flex;align-items:center;gap:9px;padding:10px 11px;border-radius:13px;
+  background:var(--lime3);border:1px solid rgba(168,230,61,.1);margin-bottom:9px}
+.ap-av{width:30px;height:30px;border-radius:50%;background:var(--lime);
+  display:flex;align-items:center;justify-content:center;font-weight:700;
+  color:var(--bg);font-size:.75rem;overflow:hidden;flex-shrink:0}
+.ap-av img{width:100%;height:100%;object-fit:cover}
+.ap-nm{font-size:.78rem;font-weight:600}
+.ap-rl{font-size:.65rem;color:var(--lime)}
+.btn-lo{width:100%;padding:8px;border-radius:9px;border:1px solid rgba(239,68,68,.18);
+  background:rgba(239,68,68,.06);color:#fca5a5;font-family:'DM Sans',sans-serif;
+  font-size:.76rem;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-lo:hover{background:rgba(239,68,68,.14)}
+
+/* ── MAIN ── */
+.main{margin-left:248px;flex:1;padding:28px;min-height:100vh}
+.sec{display:none;animation:fadeUp .28s ease}
+.sec.on{display:block}
+.pg-hd{margin-bottom:24px}
+.crumb{font-size:.72rem;color:var(--muted);margin-bottom:7px}
+.crumb span{color:var(--lime)}
+.pg-title{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;letter-spacing:-.5px;margin-bottom:4px}
+.pg-sub{font-size:.83rem;color:var(--muted)}
+.pg-hd-row{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid rgba(168,230,61,.09);
+  border-radius:20px;padding:22px;margin-bottom:18px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(168,230,61,.18),transparent)}
+.card-h{font-family:'Syne',sans-serif;font-size:.97rem;font-weight:700;margin-bottom:4px}
+.card-sub{font-size:.76rem;color:var(--muted);margin-bottom:18px}
+
+/* MINI STATS */
+.mc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:20px}
+.mc{background:var(--card);border:1px solid rgba(168,230,61,.09);border-radius:17px;padding:18px;text-align:center}
+.mc-n{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;margin-bottom:3px}
+.mc-l{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.mc.lime .mc-n{color:var(--lime)}
+.mc.org .mc-n{color:var(--orange)}
+.mc.red .mc-n{color:var(--red)}
+.mc.blue .mc-n{color:var(--blue)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+
+/* TABLE */
+.tbl-w{border-radius:13px;border:1px solid rgba(168,230,61,.09);overflow:hidden}
+table{width:100%;border-collapse:collapse}
+thead{background:var(--lime4)}
+th{padding:11px 14px;text-align:left;font-size:.68rem;letter-spacing:.8px;
+  text-transform:uppercase;color:var(--muted);font-weight:700;
+  border-bottom:1px solid rgba(168,230,61,.09)}
+td{padding:11px 14px;font-size:.83rem;border-bottom:1px solid rgba(255,255,255,.04)}
+tr:last-child td{border:none}
+tr:hover td{background:rgba(168,230,61,.025)}
+.badge{display:inline-flex;padding:3px 9px;border-radius:100px;font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.b-lime{background:var(--lime3);color:var(--lime)}
+.b-org{background:rgba(249,115,22,.12);color:var(--orange)}
+.b-red{background:rgba(239,68,68,.1);color:#fca5a5}
+.b-blue{background:rgba(59,130,246,.12);color:var(--blue)}
+.av-c{display:flex;align-items:center;gap:9px}
+.av-c img{width:28px;height:28px;border-radius:7px;object-fit:cover}
+.av-fb{width:28px;height:28px;border-radius:7px;background:var(--lime);
+  display:flex;align-items:center;justify-content:center;font-weight:700;
+  color:var(--bg);font-size:.7rem;flex-shrink:0}
+.av-nm{font-weight:600;font-size:.83rem}
+.av-em{font-size:.7rem;color:var(--muted)}
+
+/* MAP */
+#map-box{height:270px;border-radius:13px;overflow:hidden;
+  border:1px solid rgba(168,230,61,.14);margin-bottom:16px;background:var(--bg3)}
+#leaflet-map{height:100%;width:100%}
+
+/* FORM */
+.fg{margin-bottom:14px}
+.fl{display:block;font-size:.7rem;font-weight:600;color:var(--muted);
+  margin-bottom:7px;letter-spacing:.5px;text-transform:uppercase}
+.fi,.fs{width:100%;padding:11px 13px;border-radius:10px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(168,230,61,.13);
+  color:var(--text);font-family:'DM Sans',sans-serif;font-size:.86rem;
+  outline:none;transition:all .2s}
+.fi:focus,.fs:focus{border-color:var(--lime);background:rgba(168,230,61,.04)}
+.fi::placeholder{color:rgba(122,172,136,.3)}
+.fs option{background:var(--bg2)}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn,.btn-sm{padding:10px 20px;border-radius:10px;border:none;font-family:'DM Sans',sans-serif;
+  font-size:.86rem;font-weight:700;cursor:pointer;transition:all .2s;
+  display:inline-flex;align-items:center;gap:7px}
+.btn-sm{padding:7px 13px;font-size:.76rem}
+.btn-lime{background:var(--lime);color:var(--bg)}
+.btn-lime:hover{background:var(--lime2)}
+.btn-ol{background:transparent;color:var(--muted);border:1px solid rgba(168,230,61,.18)}
+.btn-ol:hover{border-color:var(--lime);color:var(--lime)}
+.btn-rd{background:rgba(239,68,68,.09);color:#fca5a5;border:1px solid rgba(239,68,68,.18)}
+.btn-rd:hover{background:rgba(239,68,68,.18)}
+.btn-row{display:flex;gap:9px;flex-wrap:wrap}
+.geo-ind{display:flex;align-items:center;gap:9px;padding:11px 15px;border-radius:11px;
+  background:var(--lime4);border:1px solid rgba(168,230,61,.24);
+  margin-top:13px;font-size:.83rem;color:var(--lime);font-weight:500}
+.g-dot{width:7px;height:7px;border-radius:50%;background:var(--lime);animation:pls 2s infinite;flex-shrink:0}
+
+/* TOASTS */
+.toasts{position:fixed;bottom:18px;right:18px;z-index:9999;
+  display:flex;flex-direction:column;gap:9px}
+.toast{padding:11px 16px;border-radius:12px;max-width:285px;font-size:.8rem;
+  font-weight:500;animation:fadeUp .28s ease}
+.t-ok{background:var(--lime3);border:1px solid rgba(168,230,61,.38);color:var(--lime)}
+.t-err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.35);color:#fca5a5}
+.spinner{width:15px;height:15px;border:2px solid transparent;border-top-color:currentColor;border-radius:50%;animation:spin .7s linear infinite}
+
+@media(max-width:880px){
+  .sb{width:210px}
+  .main{margin-left:210px;padding:18px}
+  .mc-grid{grid-template-columns:1fr 1fr}
+  .g2{grid-template-columns:1fr}
+  .fr{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="sb-ico">🎓</div>
+    UTT<span>LOKO</span>
+    <span class="sb-badge">ADMIN</span>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-sec">Principal</div>
+    <div class="ni on" onclick="goSec('dashboard',this)"><span class="ic">📊</span>Tableau de bord</div>
+    <div class="ni" onclick="goSec('location',this)"><span class="ic">📍</span>Localisation GPS</div>
+    <div class="sb-sec">Gestion</div>
+    <div class="ni" onclick="goSec('users',this)"><span class="ic">👥</span>Enseignants</div>
+    <div class="ni" onclick="goSec('clockins',this)"><span class="ic">⏱</span>Pointages</div>
+    <div class="ni" onclick="goSec('retards',this)"><span class="ic">⚠️</span>Retards & Explic.</div>
+    <div class="sb-sec">Système</div>
+    <div class="ni" onclick="goSec('settings',this)"><span class="ic">⚙️</span>Paramètres</div>
+    <div class="ni" onclick="location.href='index.html'"><span class="ic">🏠</span>Accueil</div>
+  </nav>
+  <div class="sb-foot">
+    <div class="admin-pill">
+      <div class="ap-av" id="ap-av"><span id="ap-init">A</span></div>
+      <div><div class="ap-nm" id="ap-nm">Administrateur</div><div class="ap-rl">Super Admin</div></div>
+    </div>
+    <button class="btn-lo" onclick="doLogout()">🚪 Déconnexion</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- DASHBOARD -->
+  <div class="sec on" id="s-dashboard">
+    <div class="pg-hd">
+      <div class="crumb">Admin / <span>Tableau de bord</span></div>
+      <div class="pg-title">Tableau de bord</div>
+      <div class="pg-sub" id="dash-date">—</div>
+    </div>
+    <div class="mc-grid">
+      <div class="mc lime"><div class="mc-n" id="mc-t">—</div><div class="mc-l">Enseignants</div></div>
+      <div class="mc lime"><div class="mc-n" id="mc-p">—</div><div class="mc-l">Présents aujourd'hui</div></div>
+      <div class="mc org"><div class="mc-n" id="mc-l">—</div><div class="mc-l">Retards</div></div>
+      <div class="mc blue"><div class="mc-n" id="mc-e">—</div><div class="mc-l">Explications</div></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-h">📋 Derniers pointages</div>
+        <div class="card-sub">Activité du jour en temps réel</div>
+        <div class="tbl-w"><table><thead><tr><th>Enseignant</th><th>Heure</th><th>Type</th><th>Statut</th></tr></thead>
+        <tbody id="dash-ck"><tr><td colspan="4" style="text-align:center;color:var(--muted);padding:18px">Chargement...</td></tr></tbody></table></div>
+      </div>
+      <div class="card">
+        <div class="card-h">⚠️ Dernières explications</div>
+        <div class="card-sub">Questionnaires de retard reçus</div>
+        <div class="tbl-w"><table><thead><tr><th>Enseignant</th><th>Date</th><th>Raison</th></tr></thead>
+        <tbody id="dash-ex"><tr><td colspan="3" style="text-align:center;color:var(--muted);padding:18px">Aucune</td></tr></tbody></table></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOCATION -->
+  <div class="sec" id="s-location">
+    <div class="pg-hd-row">
+      <div>
+        <div class="crumb">Admin / <span>Localisation GPS</span></div>
+        <div class="pg-title">Localisation GPS</div>
+        <div class="pg-sub">Définissez les coordonnées exactes de l'établissement</div>
+      </div>
+      <button class="btn btn-ol" onclick="getMyPos()">📍 Ma position actuelle</button>
+    </div>
+    <div class="card">
+      <div class="card-h">🗺 Carte interactive</div>
+      <div class="card-sub">Cliquez sur la carte pour définir le centre, ou renseignez manuellement</div>
+      <div id="map-box"><div id="leaflet-map"></div></div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Latitude</label><input type="number" class="fi" id="loc-lat" placeholder="ex: 6.1375" step="0.000001"></div>
+        <div class="fg"><label class="fl">Longitude</label><input type="number" class="fi" id="loc-lng" placeholder="ex: 1.2123" step="0.000001"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Rayon autorisé (mètres)</label><input type="number" class="fi" id="loc-r" placeholder="200" value="200" min="50" max="2000"></div>
+        <div class="fg"><label class="fl">Nom de l'établissement</label><input type="text" class="fi" id="loc-nm" placeholder="UTT LOKO — Campus Principal"></div>
+      </div>
+      <div class="geo-ind" id="geo-ind" style="display:none">
+        <span class="g-dot"></span><span id="geo-ind-txt">—</span>
+      </div>
+      <br>
+      <div class="btn-row">
+        <button class="btn btn-lime" onclick="saveLoc()">💾 Enregistrer</button>
+        <button class="btn btn-ol" onclick="loadLoc()">🔄 Recharger</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- USERS -->
+  <div class="sec" id="s-users">
+    <div class="pg-hd-row">
+      <div>
+        <div class="crumb">Admin / <span>Enseignants</span></div>
+        <div class="pg-title">Gestion des enseignants</div>
+        <div class="pg-sub">Liste complète des comptes inscrits dans Firestore</div>
+      </div>
+      <input type="text" class="fi" style="width:210px" id="srch" placeholder="🔍 Rechercher..." oninput="filterUsers()">
+    </div>
+    <div class="card">
+      <div class="tbl-w">
+        <table>
+          <thead><tr><th>Enseignant</th><th>Contact</th><th>Département</th><th>Rôle</th><th>Créé le</th><th>Actions</th></tr></thead>
+          <tbody id="users-tb"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:22px">Chargement...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLOCKINS -->
+  <div class="sec" id="s-clockins">
+    <div class="pg-hd-row">
+      <div>
+        <div class="crumb">Admin / <span>Pointages</span></div>
+        <div class="pg-title">Historique des pointages</div>
+        <div class="pg-sub">Consultez et exportez les données Firestore</div>
+      </div>
+      <div style="display:flex;gap:9px;align-items:center;flex-wrap:wrap">
+        <span style="font-size:.8rem;color:var(--muted)">Date :</span>
+        <input type="date" class="fi" style="width:165px" id="date-f" onchange="loadCKDate()">
+        <button class="btn btn-ol btn-sm" onclick="exportCSV()">📥 CSV</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="tbl-w">
+        <table>
+          <thead><tr><th>Enseignant</th><th>Type</th><th>Heure</th><th>Statut</th><th>Face</th></tr></thead>
+          <tbody id="ck-tb"><tr><td colspan="5" style="text-align:center;color:var(--muted);padding:22px">Sélectionnez une date</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- RETARDS -->
+  <div class="sec" id="s-retards">
+    <div class="pg-hd">
+      <div class="crumb">Admin / <span>Retards</span></div>
+      <div class="pg-title">Retards & Explications</div>
+      <div class="pg-sub">Tous les questionnaires soumis par les enseignants</div>
+    </div>
+    <div class="card">
+      <div class="tbl-w">
+        <table>
+          <thead><tr><th>Enseignant</th><th>Date</th><th>Heure</th><th>Raison</th><th>Détails</th></tr></thead>
+          <tbody id="ret-tb"><tr><td colspan="5" style="text-align:center;color:var(--muted);padding:22px">Chargement...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="sec" id="s-settings">
+    <div class="pg-hd">
+      <div class="crumb">Admin / <span>Paramètres</span></div>
+      <div class="pg-title">Paramètres système</div>
+      <div class="pg-sub">Règles horaires, rôles et comptes</div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-h">⏰ Horaires réglementaires</div>
+        <div class="card-sub">Plages horaires de pointage</div>
+        <div class="fg"><label class="fl">Heure limite Clock IN</label><input type="time" class="fi" id="s-lim" value="09:00"></div>
+        <div class="fg"><label class="fl">Heure de sortie Clock OUT</label><input type="time" class="fi" id="s-out" value="18:00"></div>
+        <button class="btn btn-lime" onclick="saveSettings()">💾 Sauvegarder</button>
+      </div>
+      <div class="card">
+        <div class="card-h">🛡️ Rôles & Comptes</div>
+        <div class="card-sub">Promouvoir ou supprimer des comptes</div>
+        <div class="fg"><label class="fl">Promouvoir en admin (email)</label><input type="email" class="fi" id="promo-e" placeholder="email@example.com"></div>
+        <button class="btn btn-lime" onclick="promoteAdmin()" style="margin-bottom:18px">⬆️ Promouvoir</button>
+        <div class="fg" style="margin-top:4px"><label class="fl">Supprimer un compte (email)</label><input type="email" class="fi" id="del-e" placeholder="email@example.com"></div>
+        <button class="btn btn-rd" onclick="deleteByEmail()">🗑️ Supprimer</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h">🔐 Créer un compte admin direct</div>
+      <div class="card-sub">Créer le premier compte administrateur depuis cette page</div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Nom</label><input type="text" class="fi" id="new-nom" placeholder="ADMIN"></div>
+        <div class="fg"><label class="fl">Prénom</label><input type="text" class="fi" id="new-prenom" placeholder="Super"></div>
+      </div>
+      <div class="fg"><label class="fl">Email</label><input type="email" class="fi" id="new-email" placeholder="admin@uttloko.edu"></div>
+      <div class="fg"><label class="fl">Mot de passe</label><input type="password" class="fi" id="new-pass" placeholder="Minimum 8 caractères"></div>
+      <button class="btn btn-lime" onclick="createAdmin()">✅ Créer le compte admin</button>
+    </div>
+  </div>
+
+</main>
+
+<div class="toasts" id="toasts"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+import {
+  getFirestore, collection, doc, setDoc, getDoc, getDocs,
+  addDoc, query, where, orderBy, limit, onSnapshot,
+  updateDoc, deleteDoc, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+const FC={apiKey:"AIzaSyCPGgtXoDUycykLaTSee0S0yY0tkeJpqKI",authDomain:"data-com-a94a8.firebaseapp.com",projectId:"data-com-a94a8",storageBucket:"data-com-a94a8.firebasestorage.app",messagingSenderId:"276904640935",appId:"1:276904640935:web:9cd805aeba6c34c767f682"};
+const app=initializeApp(FC);
+const db=getFirestore(app);
+window._db=db;
+
+/* ── Session ── */
+const sess=sessionStorage.getItem('uttloko_user');
+if(!sess){location.href='index.html';}
+const A=JSON.parse(sess||'{}');
+if(A.role!=='admin'){location.href='dashboard.html';}
+const init=((A.prenom||'A')[0]+(A.nom||'D')[0]).toUpperCase();
+document.getElementById('ap-init').textContent=init;
+document.getElementById('ap-nm').textContent=`${A.prenom||''} ${A.nom||''}`.trim()||'Administrateur';
+if(A.photoURL)document.getElementById('ap-av').innerHTML=`<img src="${A.photoURL}">`;
+
+document.getElementById('dash-date').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+document.getElementById('date-f').value=new Date().toISOString().slice(0,10);
+window._allUsers={};
+
+/* ── HASH ── */
+async function hashPass(p){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(p));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
+
+/* ── DASHBOARD ── */
+async function initDash(){
+  const us=await getDocs(collection(db,'users'));
+  let cnt=0;us.forEach(d=>{if(d.data().role==='teacher')cnt++;});
+  document.getElementById('mc-t').textContent=us.size;
+
+  const todayKey=new Date().toISOString().slice(0,10).replace(/-/g,'');
+  const ck=await getDocs(collection(db,`clockins_${todayKey}`));
+  let pres=0,late=0;const rows=[];
+  ck.forEach(d=>{
+    const v=d.data();
+    if(v.clockin){pres++;if(v.clockin.late)late++;}
+    if(v.clockin)rows.push({...v.clockin,type:'Entrée'});
+    if(v.clockout)rows.push({...v.clockout,type:'Sortie'});
+  });
+  document.getElementById('mc-p').textContent=pres;
+  document.getElementById('mc-l').textContent=late;
+  rows.sort((a,b)=>b.tsMs-a.tsMs);
+  document.getElementById('dash-ck').innerHTML=rows.slice(0,8).map(r=>{
+    const t=new Date(r.tsMs).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    const b=r.late?'<span class="badge b-org">Retard</span>':'<span class="badge b-lime">OK</span>';
+    return`<tr><td>${r.userName||'—'}</td><td>${t}</td><td>${r.type}</td><td>${b}</td></tr>`;
+  }).join('')||'<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:16px">Aucun pointage</td></tr>';
+
+  const exSnap=await getDocs(query(collection(db,'explanations'),orderBy('tsMs','desc'),limit(20)));
+  document.getElementById('mc-e').textContent=exSnap.size;
+  document.getElementById('dash-ex').innerHTML=exSnap.docs.slice(0,5).map(d=>{
+    const e=d.data();
+    return`<tr><td>${e.userName||'—'}</td><td>${new Date(e.tsMs).toLocaleDateString('fr-FR')}</td><td><span class="badge b-org">${rLabel(e.reason)}</span></td></tr>`;
+  }).join('')||'<tr><td colspan="3" style="text-align:center;color:var(--muted);padding:16px">Aucune</td></tr>';
+}
+
+/* ── USERS ── */
+async function loadUsers(){
+  const snap=await getDocs(collection(db,'users'));
+  const tbody=document.getElementById('users-tb');
+  if(snap.empty){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:22px">Aucun utilisateur</td></tr>';return;}
+  window._allUsers={};
+  snap.forEach(d=>{window._allUsers[d.id]=d.data();});
+  renderUsers(window._allUsers);
+}
+function renderUsers(data){
+  const tbody=document.getElementById('users-tb');
+  const entries=Object.entries(data);
+  if(!entries.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted)">Aucun résultat</td></tr>';return;}
+  tbody.innerHTML=entries.map(([uid,u])=>{
+    const av=u.photoURL?`<img src="${u.photoURL}" crossorigin="anonymous" referrerpolicy="no-referrer">`:`<div class="av-fb">${(u.prenom||'?')[0]}</div>`;
+    const cr=u.createdAt?.toDate?.()?.toLocaleDateString('fr-FR')||'—';
+    const rb=u.role==='admin'?'<span class="badge b-blue">Admin</span>':'<span class="badge b-lime">Enseignant</span>';
+    return`<tr>
+      <td><div class="av-c">${av}<div><div class="av-nm">${u.prenom} ${u.nom}</div><div class="av-em">${u.email}</div></div></div></td>
+      <td>${u.contact||'—'}</td><td>${u.dept||'—'}</td><td>${rb}</td><td>${cr}</td>
+      <td><button class="btn btn-rd btn-sm" onclick="delUser('${uid}')">Supprimer</button></td>
+    </tr>`;
+  }).join('');
+}
+window.filterUsers=()=>{
+  const q=document.getElementById('srch').value.toLowerCase();
+  renderUsers(Object.fromEntries(Object.entries(window._allUsers).filter(([,u])=>
+    (u.nom+u.prenom+u.email+(u.dept||'')).toLowerCase().includes(q))));
+};
+window.delUser=async uid=>{
+  if(!confirm('Supprimer cet utilisateur ?'))return;
+  await deleteDoc(doc(db,'users',uid));
+  toast('Utilisateur supprimé','ok');loadUsers();
+};
+
+/* ── CLOCKINS ── */
+window.loadCKDate=async()=>{
+  const dk=document.getElementById('date-f').value.replace(/-/g,'');
+  const snap=await getDocs(collection(db,`clockins_${dk}`));
+  const tbody=document.getElementById('ck-tb');
+  if(snap.empty){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:22px">Aucun pointage ce jour</td></tr>';return;}
+  const rows=[];
+  snap.forEach(d=>{
+    const v=d.data();
+    if(v.clockin)rows.push({...v.clockin,type:'🟢 Entrée'});
+    if(v.clockout)rows.push({...v.clockout,type:'🔴 Sortie'});
+  });
+  rows.sort((a,b)=>a.tsMs-b.tsMs);
+  tbody.innerHTML=rows.map(r=>{
+    const t=new Date(r.tsMs).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    const bs=r.late?'<span class="badge b-org">⚠ Retard</span>':'<span class="badge b-lime">✓ OK</span>';
+    const faceThumb=r.faceBase64?`<img src="${r.faceBase64}" style="width:28px;height:28px;border-radius:6px;object-fit:cover;vertical-align:middle">`:'—'; const bf=r.faceOk?`<span class="badge b-lime">✓ ${faceThumb}</span>`:'<span class="badge b-red">✗ Non</span>';
+    return`<tr><td>${r.userName||'—'}</td><td>${r.type}</td><td>${t}</td><td>${bs}</td><td>${bf}</td></tr>`;
+  }).join('')||'<tr><td colspan="5" style="text-align:center;color:var(--muted)">Aucune entrée</td></tr>';
+};
+
+/* ── RETARDS ── */
+async function loadRetards(){
+  const snap=await getDocs(query(collection(db,'explanations'),orderBy('tsMs','desc')));
+  const tbody=document.getElementById('ret-tb');
+  if(snap.empty){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:22px">Aucune explication</td></tr>';return;}
+  tbody.innerHTML=snap.docs.map(d=>{
+    const e=d.data();
+    return`<tr>
+      <td>${e.userName||'—'}</td>
+      <td>${new Date(e.tsMs).toLocaleDateString('fr-FR')}</td>
+      <td>${e.heure||'—'}</td>
+      <td><span class="badge b-org">${rLabel(e.reason)}</span></td>
+      <td style="font-size:.76rem;color:var(--muted);max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.details||'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── SETTINGS ── */
+async function loadSettings(){
+  const s=await getDoc(doc(db,'config','settings'));
+  if(!s.exists())return;
+  const d=s.data();
+  if(d.clockinLimit)document.getElementById('s-lim').value=d.clockinLimit;
+  if(d.clockoutTime)document.getElementById('s-out').value=d.clockoutTime;
+}
+window.saveSettings=async()=>{
+  await setDoc(doc(db,'config','settings'),{clockinLimit:document.getElementById('s-lim').value,clockoutTime:document.getElementById('s-out').value});
+  toast('Paramètres sauvegardés','ok');
+};
+window.promoteAdmin=async()=>{
+  const email=document.getElementById('promo-e').value.trim().toLowerCase();
+  if(!email){toast('Entrez un email valide','err');return;}
+  const snap=await getDocs(query(collection(db,'users'),where('email','==',email),limit(1)));
+  if(snap.empty){toast('Compte introuvable','err');return;}
+  await updateDoc(snap.docs[0].ref,{role:'admin'});
+  toast('Utilisateur promu admin !','ok');loadUsers();
+};
+window.deleteByEmail=async()=>{
+  const email=document.getElementById('del-e').value.trim().toLowerCase();
+  if(!email||!confirm(`Supprimer ${email} ?`))return;
+  const snap=await getDocs(query(collection(db,'users'),where('email','==',email),limit(1)));
+  if(snap.empty){toast('Compte introuvable','err');return;}
+  await deleteDoc(snap.docs[0].ref);
+  toast('Compte supprimé','ok');loadUsers();
+};
+window.createAdmin=async()=>{
+  const nom=document.getElementById('new-nom').value.trim();
+  const prenom=document.getElementById('new-prenom').value.trim();
+  const email=document.getElementById('new-email').value.trim().toLowerCase();
+  const pass=document.getElementById('new-pass').value;
+  if(!nom||!prenom||!email||!pass){toast('Remplissez tous les champs','err');return;}
+  const exist=await getDocs(query(collection(db,'users'),where('email','==',email),limit(1)));
+  if(!exist.empty){toast('Email déjà utilisé','err');return;}
+  const hashed=await hashPass(pass);
+  const uid='a_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
+  await setDoc(doc(db,'users',uid),{uid,nom,prenom,email,password:hashed,role:'admin',dept:'Administration',contact:'',photoURL:'',createdAt:serverTimestamp()});
+  toast(`Admin ${prenom} créé !`,'ok');
+  document.getElementById('new-nom').value='';
+  document.getElementById('new-prenom').value='';
+  document.getElementById('new-email').value='';
+  document.getElementById('new-pass').value='';
+  loadUsers();
+};
+
+/* ── LOCATION ── */
+let _map,_mk,_cir;
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    if(!document.getElementById('leaflet-map'))return;
+    _map=L.map('leaflet-map').setView([6.1375,1.2123],14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(_map);
+    _map.on('click',e=>{
+      placeMk(e.latlng.lat,e.latlng.lng);
+      document.getElementById('loc-lat').value=e.latlng.lat.toFixed(6);
+      document.getElementById('loc-lng').value=e.latlng.lng.toFixed(6);
+    });
+    loadLoc();
+  },400);
+});
+function placeMk(lat,lng){
+  if(_mk){_map.removeLayer(_mk);_mk=null;}
+  if(_cir){_map.removeLayer(_cir);_cir=null;}
+  const rad=parseInt(document.getElementById('loc-r')?.value)||200;
+  _mk=L.marker([lat,lng],{icon:L.divIcon({html:`<div style="background:#a8e63d;width:14px;height:14px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.5)"></div>`,iconSize:[14,14],iconAnchor:[7,7]})}).addTo(_map);
+  _cir=L.circle([lat,lng],{radius:rad,color:'#a8e63d',fillColor:'#a8e63d',fillOpacity:.08,weight:2}).addTo(_map);
+  _map.setView([lat,lng],16);
+}
+window.getMyPos=()=>{
+  if(!navigator.geolocation){toast('Géolocalisation non supportée','err');return;}
+  navigator.geolocation.getCurrentPosition(p=>{
+    document.getElementById('loc-lat').value=p.coords.latitude.toFixed(6);
+    document.getElementById('loc-lng').value=p.coords.longitude.toFixed(6);
+    placeMk(p.coords.latitude,p.coords.longitude);
+    toast('Position actuelle récupérée !','ok');
+  },()=>toast('Impossible d\'obtenir la position','err'));
+};
+window.saveLoc=async()=>{
+  const lat=parseFloat(document.getElementById('loc-lat').value);
+  const lng=parseFloat(document.getElementById('loc-lng').value);
+  const radius=parseInt(document.getElementById('loc-r').value)||200;
+  const name=document.getElementById('loc-nm').value.trim()||'UTT LOKO';
+  if(isNaN(lat)||isNaN(lng)){toast('Coordonnées invalides','err');return;}
+  await setDoc(doc(db,'config','location'),{lat,lng,radius,name,updatedAt:serverTimestamp()});
+  const ind=document.getElementById('geo-ind');
+  ind.style.display='flex';
+  document.getElementById('geo-ind-txt').textContent=`${name} — ${lat.toFixed(5)}, ${lng.toFixed(5)} (rayon: ${radius}m)`;
+  toast('Localisation enregistrée dans Firestore !','ok');
+};
+window.loadLoc=async()=>{
+  const s=await getDoc(doc(db,'config','location'));
+  if(!s.exists())return;
+  const d=s.data();
+  document.getElementById('loc-lat').value=d.lat||'';
+  document.getElementById('loc-lng').value=d.lng||'';
+  document.getElementById('loc-r').value=d.radius||200;
+  document.getElementById('loc-nm').value=d.name||'';
+  const ind=document.getElementById('geo-ind');
+  ind.style.display='flex';
+  document.getElementById('geo-ind-txt').textContent=`${d.name} — ${Number(d.lat).toFixed(5)}, ${Number(d.lng).toFixed(5)} (rayon: ${d.radius}m)`;
+  if(_map&&d.lat&&d.lng)placeMk(d.lat,d.lng);
+};
+
+/* ── CSV ── */
+window.exportCSV=()=>{
+  const rows=[...document.querySelectorAll('#ck-tb tr')];
+  const csv=rows.map(r=>[...r.querySelectorAll('td')].map(td=>td.textContent.trim()).join(',')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent('Enseignant,Type,Heure,Statut,Face\n'+csv);
+  a.download='pointages_uttloko.csv';a.click();
+};
+
+/* ── LOGOUT ── */
+window.doLogout=()=>{sessionStorage.removeItem('uttloko_user');location.href='index.html';};
+
+/* ── HELPERS ── */
+function rLabel(r){return{transport:'Transport',sante:'Santé',famille:'Famille',meteo:'Météo',admin:'Admin',autre:'Autre'}[r]||r||'—';}
+function toast(msg,type){const d=document.createElement('div');d.className='toast t-'+type;d.textContent=msg;document.getElementById('toasts').appendChild(d);setTimeout(()=>d.remove(),4000);}
+window.toast=toast;
+
+/* ── INIT ── */
+initDash();loadUsers();loadRetards();loadSettings();
+</script>
+
+<script>
+function goSec(id,el){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  document.getElementById('s-'+id).classList.add('on');
+  el.classList.add('on');
+  if(id==='clockins')window.loadCKDate&&loadCKDate();
+}
+</script>
+</body>
+</html>
