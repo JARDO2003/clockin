@@ -24,6 +24,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 @keyframes floatUp{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(0)}}
+@keyframes progressBar{from{width:0%}to{width:100%}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
 
 /* ── NAV ── */
 nav{position:fixed;top:0;left:0;right:0;z-index:200;height:64px;
@@ -200,7 +202,8 @@ footer{position:relative;z-index:1;border-top:1px solid rgba(168,230,61,.07);
 .qb-label{font-size:.72rem;font-weight:600;color:var(--muted);
   text-transform:uppercase;letter-spacing:.8px;white-space:nowrap;margin-right:4px}
 .qb-btn{display:flex;align-items:center;gap:10px;padding:8px 16px;border-radius:11px;
-  text-decoration:none;transition:all .22s;flex:1;max-width:280px}
+  text-decoration:none;transition:all .22s;flex:1;max-width:280px;cursor:pointer;
+  -webkit-user-select:none;user-select:none;position:relative;overflow:hidden}
 .qb-dash{background:rgba(168,230,61,.08);border:1px solid rgba(168,230,61,.2);color:var(--lime)}
 .qb-dash:hover{background:rgba(168,230,61,.16);border-color:rgba(168,230,61,.5);transform:translateY(-1px)}
 .qb-admin{background:rgba(249,115,22,.07);border:1px solid rgba(249,115,22,.2);color:var(--orange)}
@@ -210,14 +213,23 @@ footer{position:relative;z-index:1;border-top:1px solid rgba(168,230,61,.07);
 .qb-sub{font-size:.68rem;opacity:.65;margin-top:1px}
 .qb-arrow{margin-left:auto;font-size:.9rem;opacity:.6;transition:transform .2s}
 .qb-btn:hover .qb-arrow{transform:translateX(3px);opacity:1}
+
+/* ── LONG PRESS PROGRESS ── */
+.lp-bar{position:absolute;bottom:0;left:0;height:3px;width:0%;
+  background:var(--orange);border-radius:0 2px 2px 0;transition:none;pointer-events:none}
+.lp-bar.active{transition:width var(--lp-dur,1.5s) linear}
+.qb-admin.pressing{background:rgba(249,115,22,.18);border-color:rgba(249,115,22,.6)}
+
 /* ── HERO DIRECT LINKS ── */
 .hero-links{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
   animation:fadeUp .6s .45s ease both}
 .hl-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;
   border-radius:11px;font-size:.82rem;font-weight:600;text-decoration:none;
-  transition:all .22s;border:1px dashed rgba(168,230,61,.3);color:var(--muted)}
+  transition:all .22s;border:1px dashed rgba(168,230,61,.3);color:var(--muted);
+  cursor:pointer;-webkit-user-select:none;user-select:none;position:relative;overflow:hidden}
 .hl-btn:hover{color:var(--text);border-style:solid}
 .hl-dash:hover{border-color:var(--lime);background:rgba(168,230,61,.07);color:var(--lime)}
+.hl-admin{border-color:rgba(249,115,22,.3);color:var(--muted)}
 .hl-admin:hover{border-color:var(--orange);background:rgba(249,115,22,.07);color:var(--orange)}
 /* Adjust hero padding for quick bar */
 .hero{padding-top:182px !important}
@@ -227,6 +239,53 @@ footer{position:relative;z-index:1;border-top:1px solid rgba(168,230,61,.07);
   .qb-btn{max-width:100%;flex:1;min-width:0}
   .hero{padding-top:210px !important}
 }
+
+/* ══ ADMIN PASSWORD MODAL ══ */
+.adm-overlay{position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.85);
+  backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;
+  padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
+.adm-overlay.open{opacity:1;pointer-events:all}
+.adm-modal{background:var(--bg2);border:1px solid rgba(249,115,22,.25);border-radius:24px;
+  width:100%;max-width:400px;padding:36px;position:relative;
+  transform:scale(.93) translateY(16px);transition:transform .28s}
+.adm-overlay.open .adm-modal{transform:scale(1) translateY(0)}
+.adm-modal.shake{animation:shake .4s ease}
+.adm-head{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:26px}
+.adm-shield{width:60px;height:60px;border-radius:18px;background:rgba(249,115,22,.12);
+  border:1px solid rgba(249,115,22,.3);display:flex;align-items:center;
+  justify-content:center;font-size:1.8rem}
+.adm-title{font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:800;text-align:center}
+.adm-sub{font-size:.8rem;color:var(--muted);text-align:center;line-height:1.5}
+.adm-input-wrap{position:relative;margin-bottom:14px}
+.adm-input{width:100%;padding:13px 46px 13px 14px;border-radius:12px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(249,115,22,.2);
+  color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem;
+  outline:none;transition:all .2s;letter-spacing:.5px}
+.adm-input:focus{border-color:var(--orange);background:rgba(249,115,22,.05)}
+.adm-input::placeholder{color:rgba(122,172,136,.3);letter-spacing:0}
+.adm-eye{position:absolute;right:13px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;color:var(--muted);font-size:.95rem;
+  padding:4px;transition:color .2s}
+.adm-eye:hover{color:var(--orange)}
+.adm-err{padding:9px 13px;border-radius:9px;font-size:.78rem;font-weight:500;
+  margin-bottom:13px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.28);
+  color:#fca5a5;display:none}
+.adm-attempts{font-size:.72rem;color:rgba(239,68,68,.7);text-align:center;
+  margin-bottom:10px;display:none}
+.adm-btn{width:100%;padding:13px;border-radius:12px;border:none;
+  background:var(--orange);color:#fff;font-family:'Syne',sans-serif;
+  font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:8px}
+.adm-btn:hover{background:#fb8a30;transform:translateY(-1px)}
+.adm-btn:disabled{opacity:.45;cursor:not-allowed}
+.adm-cancel{width:100%;padding:10px;border-radius:12px;
+  border:1px solid rgba(255,255,255,.08);background:transparent;
+  color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.85rem;
+  cursor:pointer;transition:all .2s;margin-top:8px}
+.adm-cancel:hover{border-color:rgba(255,255,255,.2);color:var(--text)}
+.adm-hint{display:flex;align-items:center;gap:6px;padding:9px 13px;
+  border-radius:9px;background:rgba(249,115,22,.07);border:1px solid rgba(249,115,22,.15);
+  font-size:.73rem;color:var(--orange);margin-bottom:16px}
 </style>
 </head>
 <body>
@@ -254,14 +313,22 @@ footer{position:relative;z-index:1;border-top:1px solid rgba(168,230,61,.07);
     </div>
     <span class="qb-arrow">→</span>
   </a>
-  <a class="qb-btn qb-admin" href="admin.html">
+  <!-- ADMIN BTN — appui long requis -->
+  <div class="qb-btn qb-admin" id="qb-admin-btn"
+       onmousedown="startLongPress(event,'qb-admin-btn')"
+       onmouseup="cancelLongPress('qb-admin-btn')"
+       onmouseleave="cancelLongPress('qb-admin-btn')"
+       ontouchstart="startLongPress(event,'qb-admin-btn')"
+       ontouchend="cancelLongPress('qb-admin-btn')"
+       ontouchcancel="cancelLongPress('qb-admin-btn')">
     <span class="qb-ico">🛡️</span>
     <div>
       <div class="qb-title">Panneau Admin</div>
-      <div class="qb-sub">GPS · Gestion · Rapports</div>
+      <div class="qb-sub">Maintenez appuyé pour accéder</div>
     </div>
     <span class="qb-arrow">→</span>
-  </a>
+    <div class="lp-bar" id="lp-bar-qb-admin-btn"></div>
+  </div>
 </div>
 
 <!-- HERO -->
@@ -275,7 +342,17 @@ footer{position:relative;z-index:1;border-top:1px solid rgba(168,230,61,.07);
   </div>
   <div class="hero-links">
     <a class="hl-btn hl-dash" href="dashboard.html">⏱ Aller au Dashboard</a>
-    <a class="hl-btn hl-admin" href="admin.html">🛡️ Aller à l'Admin</a>
+    <!-- ADMIN hero link — appui long aussi -->
+    <div class="hl-btn hl-admin" id="hl-admin-btn"
+         onmousedown="startLongPress(event,'hl-admin-btn')"
+         onmouseup="cancelLongPress('hl-admin-btn')"
+         onmouseleave="cancelLongPress('hl-admin-btn')"
+         ontouchstart="startLongPress(event,'hl-admin-btn')"
+         ontouchend="cancelLongPress('hl-admin-btn')"
+         ontouchcancel="cancelLongPress('hl-admin-btn')">
+      🛡️ Admin (maintenir)
+      <div class="lp-bar" id="lp-bar-hl-admin-btn"></div>
+    </div>
   </div>
 </section>
 
@@ -363,7 +440,180 @@ footer{position:relative;z-index:1;border-top:1px solid rgba(168,230,61,.07);
   </div>
 </div>
 
+<!-- ══ ADMIN PASSWORD MODAL ══ -->
+<div class="adm-overlay" id="adm-overlay" onclick="admBgClose(event)">
+  <div class="adm-modal" id="adm-modal">
+    <div class="adm-head">
+      <div class="adm-shield">🛡️</div>
+      <div class="adm-title">Accès Administrateur</div>
+      <div class="adm-sub">Entrez le mot de passe administrateur<br>pour accéder au panneau de gestion</div>
+    </div>
+    <div class="adm-hint">🔒 Zone sécurisée — Accès restreint</div>
+    <div class="adm-err" id="adm-err">Mot de passe incorrect. Réessayez.</div>
+    <div class="adm-attempts" id="adm-attempts"></div>
+    <div class="adm-input-wrap">
+      <input type="password" class="adm-input" id="adm-pass"
+             placeholder="Mot de passe admin"
+             onkeydown="if(event.key==='Enter')checkAdminPass()">
+      <button class="adm-eye" id="adm-eye" onclick="toggleAdmEye()">👁</button>
+    </div>
+    <button class="adm-btn" id="adm-btn" onclick="checkAdminPass()">
+      <span>Accéder au panneau</span>
+    </button>
+    <button class="adm-cancel" onclick="closeAdmModal()">Annuler</button>
+  </div>
+</div>
+
 <div class="toasts" id="toasts"></div>
+
+<!-- ═══ LONG PRESS LOGIC ═══ -->
+<script>
+const LP_DURATION = 1500; // ms
+let lpTimer = null;
+let lpAnimFrame = null;
+let lpStart = null;
+
+function startLongPress(e, btnId) {
+  e.preventDefault();
+  cancelLongPress(btnId);
+  const btn = document.getElementById(btnId);
+  const bar = document.getElementById('lp-bar-' + btnId);
+  btn.classList.add('pressing');
+  bar.style.width = '0%';
+  bar.style.transition = 'none';
+  // Force reflow
+  bar.offsetHeight;
+  bar.style.setProperty('--lp-dur', LP_DURATION + 'ms');
+  bar.style.transition = 'width ' + LP_DURATION + 'ms linear';
+  bar.style.width = '100%';
+  bar.classList.add('active');
+  lpTimer = setTimeout(() => {
+    cancelLongPress(btnId);
+    openAdmModal();
+  }, LP_DURATION);
+}
+
+function cancelLongPress(btnId) {
+  if (lpTimer) { clearTimeout(lpTimer); lpTimer = null; }
+  const btn = document.getElementById(btnId);
+  const bar = document.getElementById('lp-bar-' + btnId);
+  if (btn) btn.classList.remove('pressing');
+  if (bar) {
+    bar.style.transition = 'width .2s ease';
+    bar.style.width = '0%';
+    bar.classList.remove('active');
+  }
+}
+
+/* ── Admin modal ── */
+let admAttempts = 0;
+const ADM_PASS = 'loko2022@';
+const ADM_MAX  = 5;
+
+function openAdmModal() {
+  const ov = document.getElementById('adm-overlay');
+  ov.classList.add('open');
+  setTimeout(() => {
+    const inp = document.getElementById('adm-pass');
+    if (inp) inp.focus();
+  }, 300);
+  document.getElementById('adm-err').style.display = 'none';
+  document.getElementById('adm-attempts').style.display = 'none';
+  document.getElementById('adm-pass').value = '';
+  document.getElementById('adm-btn').disabled = false;
+  document.getElementById('adm-btn').innerHTML = '<span>Accéder au panneau</span>';
+}
+
+function closeAdmModal() {
+  document.getElementById('adm-overlay').classList.remove('open');
+  document.getElementById('adm-pass').value = '';
+  document.getElementById('adm-err').style.display = 'none';
+}
+
+function admBgClose(e) {
+  if (e.target === document.getElementById('adm-overlay')) closeAdmModal();
+}
+
+function toggleAdmEye() {
+  const inp = document.getElementById('adm-pass');
+  const eye = document.getElementById('adm-eye');
+  if (inp.type === 'password') {
+    inp.type = 'text'; eye.textContent = '🙈';
+  } else {
+    inp.type = 'password'; eye.textContent = '👁';
+  }
+}
+
+function checkAdminPass() {
+  const val = document.getElementById('adm-pass').value;
+  const errEl = document.getElementById('adm-err');
+  const attEl = document.getElementById('adm-attempts');
+  const modal = document.getElementById('adm-modal');
+
+  if (val === ADM_PASS) {
+    admAttempts = 0;
+    errEl.style.display = 'none';
+    attEl.style.display = 'none';
+    document.getElementById('adm-btn').innerHTML = '<span>✓ Accès accordé…</span>';
+    document.getElementById('adm-btn').disabled = true;
+    toast('Accès admin accordé ! Redirection…', 'ok');
+    setTimeout(() => {
+      closeAdmModal();
+      window.location.href = 'admin.html';
+    }, 700);
+    return;
+  }
+
+  admAttempts++;
+  modal.classList.remove('shake');
+  void modal.offsetWidth; // reflow pour relancer l'animation
+  modal.classList.add('shake');
+
+  errEl.style.display = 'block';
+  const remaining = ADM_MAX - admAttempts;
+  if (remaining <= 0) {
+    errEl.textContent = 'Trop de tentatives. Accès bloqué temporairement.';
+    attEl.style.display = 'none';
+    document.getElementById('adm-btn').disabled = true;
+    document.getElementById('adm-btn').innerHTML = '<span>🔒 Bloqué (30s)</span>';
+    setTimeout(() => {
+      admAttempts = 0;
+      document.getElementById('adm-btn').disabled = false;
+      document.getElementById('adm-btn').innerHTML = '<span>Accéder au panneau</span>';
+      errEl.style.display = 'none';
+    }, 30000);
+  } else {
+    errEl.textContent = 'Mot de passe incorrect.';
+    if (admAttempts >= 2) {
+      attEl.style.display = 'block';
+      attEl.textContent = remaining + ' tentative' + (remaining > 1 ? 's' : '') + ' restante' + (remaining > 1 ? 's' : '');
+    }
+  }
+  document.getElementById('adm-pass').value = '';
+}
+
+/* ── Auth modal helpers ── */
+function openAuth(tab){document.getElementById('overlay').classList.add('open');switchP(tab);}
+function closeAuth(){document.getElementById('overlay').classList.remove('open');}
+function bgClose(e){if(e.target===document.getElementById('overlay'))closeAuth();}
+function switchP(p){
+  document.querySelectorAll('.panel').forEach(el=>el.classList.remove('on'));
+  document.getElementById('p-'+p).classList.add('on');
+  document.getElementById('tab-l').classList.toggle('on',p==='login');
+  document.getElementById('tab-r').classList.toggle('on',p==='register');
+}
+function prevPhoto(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    document.getElementById('pre-img').src=ev.target.result;
+    document.getElementById('pre-nm').textContent=f.name;
+    document.getElementById('photo-pre').style.display='flex';
+  };r.readAsDataURL(f);
+}
+function toast(msg,type){const d=document.createElement('div');d.className='toast t-'+type;d.textContent=msg;document.getElementById('toasts').appendChild(d);setTimeout(()=>d.remove(),4000);}
+window.toast=toast;
+</script>
 
 <!-- ═══ FIRESTORE LOGIC ═══ -->
 <script type="module">
@@ -386,10 +636,9 @@ const db  = getFirestore(app);
 window._db = db;
 window._FS = { collection, doc, setDoc, getDoc, getDocs, query, where, orderBy, limit, onSnapshot, serverTimestamp };
 
-/* ── Check session : si connecté, afficher boutons "retour" mais ne pas forcer la redirection ── */
+/* ── Check session ── */
 const sess = sessionStorage.getItem('uttloko_user');
 if (sess) {
-  // Afficher le nom dans la nav et un bouton retour
   try {
     const u = JSON.parse(sess);
     const navActions = document.querySelector('.nav-actions');
@@ -415,7 +664,7 @@ onSnapshot(collection(db, `clockins_${today}`), snap => {
   document.getElementById('s-today').textContent = snap.size;
 });
 
-/* ── HASH password (simple SHA-256) ── */
+/* ── Hash password (SHA-256) ── */
 async function hashPass(pass) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pass));
   return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2,'0')).join('');
@@ -448,7 +697,7 @@ window.doLogin = async () => {
   }
 };
 
-/* ── Resize + convert image to base64 (max 200x200, JPEG 80%) ── */
+/* ── Resize image to base64 ── */
 function resizeToBase64(file) {
   return new Promise((resolve) => {
     if (!file) { resolve(''); return; }
@@ -484,17 +733,15 @@ window.doRegister = async () => {
   if (pass.length < 8) { showErr('r-err','Mot de passe trop court (8 car. minimum).'); return; }
   setLoad('r-btn', true);
   try {
-    // Check email unique
     const q = query(collection(db,'users'), where('email','==',email), limit(1));
     const exist = await getDocs(q);
     if (!exist.empty) { showErr('r-err','Un compte avec cet email existe déjà.'); setLoad('r-btn',false,'Créer mon compte'); return; }
-    // Photo → base64 redimensionnée (stockée dans Firestore, pas d'URL externe)
     const photoBase64 = await resizeToBase64(file);
     const hashed = await hashPass(pass);
     const uid = 'u_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
     await setDoc(doc(db,'users',uid), {
       uid, nom, prenom, contact, email, dept,
-      photoURL: photoBase64,   // base64 → aucun blocage tracking
+      photoURL: photoBase64,
       password: hashed, role:'teacher', createdAt: serverTimestamp()
     });
     const session = { uid, nom, prenom, contact, email, dept, photoURL: photoBase64, role:'teacher' };
@@ -509,29 +756,7 @@ window.doRegister = async () => {
 
 function showErr(id,msg){const el=document.getElementById(id);el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',5000);}
 function setLoad(id,on,label=''){const b=document.getElementById(id);b.disabled=on;b.innerHTML=on?'<div class="spinner"></div>':`<span>${label}</span>`;}
-function toast(msg,type){const d=document.createElement('div');d.className='toast t-'+type;d.textContent=msg;document.getElementById('toasts').appendChild(d);setTimeout(()=>d.remove(),4000);}
-window.toast=toast;
 </script>
 
-<script>
-function openAuth(tab){document.getElementById('overlay').classList.add('open');switchP(tab);}
-function closeAuth(){document.getElementById('overlay').classList.remove('open');}
-function bgClose(e){if(e.target===document.getElementById('overlay'))closeAuth();}
-function switchP(p){
-  document.querySelectorAll('.panel').forEach(el=>el.classList.remove('on'));
-  document.getElementById('p-'+p).classList.add('on');
-  document.getElementById('tab-l').classList.toggle('on',p==='login');
-  document.getElementById('tab-r').classList.toggle('on',p==='register');
-}
-function prevPhoto(e){
-  const f=e.target.files[0];if(!f)return;
-  const r=new FileReader();
-  r.onload=ev=>{
-    document.getElementById('pre-img').src=ev.target.result;
-    document.getElementById('pre-nm').textContent=f.name;
-    document.getElementById('photo-pre').style.display='flex';
-  };r.readAsDataURL(f);
-}
-</script>
 </body>
 </html>
