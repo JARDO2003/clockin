@@ -243,7 +243,31 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .a-err{padding:10px 13px;border-radius:9px;font-size:.8rem;font-weight:500;margin-bottom:11px;
   background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.28);color:#fca5a5}
 
-/* TOASTS */
+/* UPLOAD PROGRESS */
+.upload-progress{display:none;margin-bottom:11px;background:rgba(168,230,61,.06);border:1px solid rgba(168,230,61,.2);border-radius:11px;padding:11px 14px}
+.up-label{font-size:.75rem;color:var(--muted);margin-bottom:7px;display:flex;justify-content:space-between}
+.up-bar-bg{background:var(--card2);border-radius:100px;height:5px;overflow:hidden}
+.up-bar-fill{height:100%;background:var(--lime);border-radius:100px;transition:width .2s;width:0%}
+
+/* COMMENTS */
+.comments-wrap{margin-top:12px;border-top:1px solid rgba(255,255,255,.05);padding-top:11px;display:none}
+.comments-wrap.open{display:block}
+.comment-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.cmt{display:flex;gap:9px;align-items:flex-start}
+.cmt-av{width:28px;height:28px;border-radius:50%;background:var(--lime);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--bg);font-size:.68rem;overflow:hidden;flex-shrink:0}
+.cmt-av img{width:100%;height:100%;object-fit:cover}
+.cmt-body{flex:1;background:rgba(255,255,255,.04);border-radius:9px;padding:8px 11px}
+.cmt-nm{font-size:.72rem;font-weight:600;color:var(--lime);margin-bottom:2px}
+.cmt-txt{font-size:.8rem;line-height:1.5;word-break:break-word}
+.cmt-ts{font-size:.65rem;color:var(--dim);margin-top:3px}
+.cmt-compose{display:flex;gap:8px;align-items:center}
+.cmt-inp{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(168,230,61,.13);border-radius:9px;padding:8px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.8rem;outline:none;transition:border .2s}
+.cmt-inp:focus{border-color:var(--lime)}
+.cmt-inp::placeholder{color:rgba(122,172,136,.3)}
+.cmt-send{padding:7px 14px;border-radius:9px;border:none;background:var(--lime);color:var(--bg);font-family:'Syne',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap}
+.cmt-send:hover{background:var(--lime2)}
+.no-cmts{font-size:.78rem;color:var(--dim);text-align:center;padding:8px 0}
+
 .toasts{position:fixed;bottom:18px;right:18px;z-index:9999;
   display:flex;flex-direction:column;gap:9px}
 .toast{padding:11px 16px;border-radius:12px;max-width:285px;font-size:.8rem;
@@ -356,6 +380,10 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
         <textarea class="cp-inp" id="post-txt" placeholder="Partagez une info, ressource ou actualité..."></textarea>
       </div>
       <div id="media-zone" class="media-zone"><button class="media-rm" onclick="rmMedia()">✕</button></div>
+      <div id="upload-progress" class="upload-progress">
+        <div class="up-label"><span>Upload en cours...</span><span id="up-pct">0%</span></div>
+        <div class="up-bar-bg"><div class="up-bar-fill" id="up-fill"></div></div>
+      </div>
       <div class="cp-bar">
         <div class="cp-tools">
           <button class="tool-b" onclick="document.getElementById('pick-img').click()">📷 Photo</button>
@@ -413,7 +441,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
         <option value="autre">Autre</option>
       </select>
     </div>
-    <div class="fg"><label class="fl">Heure d'arrivée effective</label><input type="time" class="fi" id="exp-heure"></div>
+    <div class="fg"><label class="fl">Heure d'arrivée effective</label><input type="time" class="fi" id="exp-heure" readonly style="opacity:.7;cursor:not-allowed;pointer-events:none"></div>
     <div class="fg"><label class="fl">Détails (optionnel)</label><textarea class="fta" id="exp-det" placeholder="Décrivez brièvement..."></textarea></div>
     <button class="btn-exp" onclick="submitExp()">Envoyer l'explication →</button>
   </div>
@@ -559,19 +587,26 @@ window.doCapture=async()=>{
   btn.disabled=true;btn.innerHTML='<div class="spinner"></div>';
   document.getElementById('face-st').textContent='Capture en cours...';
   fStep(3);
-  const vid=document.getElementById('face-vid');
-  const cv=document.getElementById('face-cv');
-  // Resize to 160px max — stays within Firestore 1MB doc limit
-  const MAX=160;
-  let w=vid.videoWidth,h=vid.videoHeight;
-  if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}
-  cv.width=w;cv.height=h;
-  cv.getContext('2d').drawImage(vid,0,0,w,h);
-  // base64 stored directly in Firestore — no external URL, no tracking block
-  const faceBase64=cv.toDataURL('image/jpeg',0.72);
-  stopCam();
-  document.getElementById('face-ov').classList.remove('open');
-  await finalizeClock(faceBase64);
+  try{
+    const vid=document.getElementById('face-vid');
+    const cv=document.getElementById('face-cv');
+    const MAX=160;
+    let w=vid.videoWidth||320,h=vid.videoHeight||240;
+    if(w===0||h===0){w=320;h=240;}
+    if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}
+    cv.width=w;cv.height=h;
+    cv.getContext('2d').drawImage(vid,0,0,w,h);
+    const faceBase64=cv.toDataURL('image/jpeg',0.72);
+    stopCam();
+    document.getElementById('face-ov').classList.remove('open');
+    await finalizeClock(faceBase64||'');
+  }catch(err){
+    console.error('Capture error',err);
+    // Even if capture fails, still allow clock-in with empty face
+    stopCam();
+    document.getElementById('face-ov').classList.remove('open');
+    await finalizeClock('');
+  }
 };
 
 async function finalizeClock(faceBase64){
@@ -682,20 +717,44 @@ window.publishPost=async()=>{
   btn.innerHTML='<div class="spinner" style="width:14px;height:14px"></div>';
   let mediaURL='',mediaType='';
   if(window._mFile){
-    const fd=new FormData();fd.append('file',window._mFile);fd.append('upload_preset','database');
-    const ep=window._mType==='video'?'https://api.cloudinary.com/v1_1/djxcqczh1/video/upload':'https://api.cloudinary.com/v1_1/djxcqczh1/image/upload';
-    const res=await fetch(ep,{method:'POST',body:fd});
-    const j=await res.json();mediaURL=j.secure_url||'';mediaType=window._mType||'';
+    // Show progress bar
+    const prog=document.getElementById('upload-progress');
+    const fill=document.getElementById('up-fill');
+    const pct=document.getElementById('up-pct');
+    prog.style.display='block';fill.style.width='0%';pct.textContent='0%';
+    try{
+      const ep=window._mType==='video'?'https://api.cloudinary.com/v1_1/djxcqczh1/video/upload':'https://api.cloudinary.com/v1_1/djxcqczh1/image/upload';
+      const fd=new FormData();fd.append('file',window._mFile);fd.append('upload_preset','database');
+      const j=await new Promise((resolve,reject)=>{
+        const xhr=new XMLHttpRequest();
+        xhr.upload.addEventListener('progress',e=>{
+          if(e.lengthComputable){
+            const p=Math.round(e.loaded/e.total*100);
+            fill.style.width=p+'%';pct.textContent=p+'%';
+          }
+        });
+        xhr.addEventListener('load',()=>{
+          try{resolve(JSON.parse(xhr.responseText));}catch(e){reject(e);}
+        });
+        xhr.addEventListener('error',reject);
+        xhr.open('POST',ep);xhr.send(fd);
+      });
+      fill.style.width='100%';pct.textContent='100%';
+      setTimeout(()=>{prog.style.display='none';},600);
+      mediaURL=j.secure_url||'';mediaType=window._mType||'';
+    }catch(e){
+      prog.style.display='none';
+      toast('Erreur upload média','err');
+      btn.disabled=false;btn.innerHTML='Publier →';return;
+    }
   }
-  // Transform Cloudinary URL to add f_auto,q_auto for proper CORS headers
   if(mediaURL && mediaURL.includes('cloudinary.com')){
-    // Insert transformation after /upload/
     mediaURL = mediaURL.replace('/upload/', '/upload/f_auto,q_auto/');
   }
   await addDoc(collection(db,'posts'),{
     txt,mediaURL,mediaType,uid:U.uid,
     uName:`${U.prenom} ${U.nom}`,uPhoto:U.photoURL||'',uDept:U.dept||'',
-    ts:serverTimestamp(),tsMs:Date.now(),likes:{},likeCount:0,shareCount:0
+    ts:serverTimestamp(),tsMs:Date.now(),likes:{},likeCount:0,shareCount:0,commentCount:0
   });
   document.getElementById('post-txt').value='';
   rmMedia();
@@ -713,6 +772,7 @@ function loadFeed(){
       const av=p.uPhoto?`<img src="${p.uPhoto}">`:`<span>${(p.uName||'?')[0]}</span>`;
       const tm=new Date(p.tsMs).toLocaleString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
       const lc=p.likeCount||0;
+      const cc=p.commentCount||0;
       const liked=p.likes&&p.likes[U.uid];
       const media=p.mediaURL?(p.mediaType==='video'?`<video class="post-vid" src="${p.mediaURL}" crossorigin="anonymous" referrerpolicy="no-referrer" controls></video>`:`<img class="post-img" src="${p.mediaURL}" crossorigin="anonymous" referrerpolicy="no-referrer" onclick="window.open('${p.mediaURL}','_blank')">`): '';
       return`<div class="post" id="post-${id}">
@@ -725,12 +785,71 @@ function loadFeed(){
         ${media}
         <div class="post-acts">
           <button class="act-b ${liked?'liked':''}" onclick="toggleLike('${id}',${!!liked})">❤️ ${lc} J'aime</button>
+          <button class="act-b" onclick="toggleComments('${id}')">💬 ${cc} Commenter</button>
           <button class="act-b" onclick="sharePost('${p.uName||''}')">🔗 Partager</button>
+        </div>
+        <div class="comments-wrap" id="cmts-${id}">
+          <div class="comment-list" id="cmt-list-${id}"><div class="no-cmts">Chargement...</div></div>
+          <div class="cmt-compose">
+            <div class="cmt-av">${U.photoURL?`<img src="${U.photoURL}">`:`<span>${((U.prenom||'?')[0]).toUpperCase()}</span>`}</div>
+            <input class="cmt-inp" id="cmt-inp-${id}" placeholder="Écrire un commentaire..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendComment('${id}');}">
+            <button class="cmt-send" onclick="sendComment('${id}')">Envoyer</button>
+          </div>
         </div>
       </div>`;
     }).join('');
   });
 }
+
+window.toggleComments=(postId)=>{
+  const wrap=document.getElementById('cmts-'+postId);
+  const isOpen=wrap.classList.contains('open');
+  if(isOpen){wrap.classList.remove('open');return;}
+  wrap.classList.add('open');
+  loadComments(postId);
+};
+
+function loadComments(postId){
+  const list=document.getElementById('cmt-list-'+postId);
+  if(!list)return;
+  const q=query(collection(db,`posts/${postId}/comments`),orderBy('tsMs','asc'),limit(50));
+  // Use onSnapshot for real-time
+  if(window._cmtUnsub&&window._cmtUnsub[postId])window._cmtUnsub[postId]();
+  if(!window._cmtUnsub)window._cmtUnsub={};
+  window._cmtUnsub[postId]=onSnapshot(q,snap=>{
+    if(!document.getElementById('cmt-list-'+postId))return;
+    if(snap.empty){list.innerHTML='<div class="no-cmts">Aucun commentaire. Soyez le premier !</div>';return;}
+    list.innerHTML=snap.docs.map(d=>{
+      const c=d.data();
+      const av=c.uPhoto?`<img src="${c.uPhoto}">`:`<span>${(c.uName||'?')[0]}</span>`;
+      const tm=new Date(c.tsMs).toLocaleString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+      return`<div class="cmt">
+        <div class="cmt-av">${av}</div>
+        <div class="cmt-body">
+          <div class="cmt-nm">${c.uName||'—'}</div>
+          <div class="cmt-txt">${c.txt||''}</div>
+          <div class="cmt-ts">${tm}</div>
+        </div>
+      </div>`;
+    }).join('');
+  });
+}
+
+window.sendComment=async(postId)=>{
+  const inp=document.getElementById('cmt-inp-'+postId);
+  const txt=(inp?.value||'').trim();
+  if(!txt)return;
+  inp.value='';
+  inp.disabled=true;
+  try{
+    await addDoc(collection(db,`posts/${postId}/comments`),{
+      txt,uid:U.uid,uName:`${U.prenom} ${U.nom}`,uPhoto:U.photoURL||'',
+      ts:serverTimestamp(),tsMs:Date.now()
+    });
+    await updateDoc(doc(db,'posts',postId),{commentCount:increment(1)});
+  }catch(e){toast('Erreur commentaire','err');}
+  inp.disabled=false;inp.focus();
+};
 
 window.toggleLike=async(id,isLiked)=>{
   const ref=doc(db,'posts',id);
