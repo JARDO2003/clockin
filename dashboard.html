@@ -436,17 +436,16 @@ const db=getFirestore(app);
 window._db=db;
 window._FS={collection,doc,setDoc,getDoc,getDocs,addDoc,query,where,orderBy,limit,onSnapshot,updateDoc,deleteDoc,serverTimestamp,increment};
 
-/* ── Session check ── */
+/* ── Session check (souple : pas de redirection forcée) ── */
 const sess=sessionStorage.getItem('uttloko_user');
-if(!sess){location.href='index.html';}
-const U=JSON.parse(sess||'{}');
+const U=sess ? JSON.parse(sess) : {role:'teacher',nom:'Visiteur',prenom:'Mode',uid:'guest',dept:'',photoURL:''};
 window._U=U;
 
 /* ── UI init ── */
 const init=((U.prenom||'?')[0]+(U.nom||'?')[0]).toUpperCase();
 document.getElementById('u-init').textContent=init;
-document.getElementById('u-nm').textContent=`${U.prenom} ${U.nom}`;
-document.getElementById('u-rl').textContent=U.dept||'Enseignant';
+document.getElementById('u-nm').textContent=sess ? `${U.prenom} ${U.nom}` : 'Non connecté';
+document.getElementById('u-rl').textContent=sess ? (U.dept||'Enseignant') : 'Visiteur';
 document.getElementById('cp-init').textContent=init;
 if(U.photoURL){
   document.getElementById('u-av').innerHTML=`<img src="${U.photoURL}">`;
