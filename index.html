@@ -1,14 +1,12 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="referrer" content="no-referrer">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UTT LOKO — Système de Présence</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="my.css">
-
-
+  <meta charset="UTF-8">
+  <meta name="referrer" content="no-referrer">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UTT LOKO — Système de Présence</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -35,22 +33,14 @@
     </div>
     <span class="qb-arrow">→</span>
   </a>
-  <!-- ADMIN BTN — appui long requis -->
-  <div class="qb-btn qb-admin" id="qb-admin-btn"
-       onmousedown="startLongPress(event,'qb-admin-btn')"
-       onmouseup="cancelLongPress('qb-admin-btn')"
-       onmouseleave="cancelLongPress('qb-admin-btn')"
-       ontouchstart="startLongPress(event,'qb-admin-btn')"
-       ontouchend="cancelLongPress('qb-admin-btn')"
-       ontouchcancel="cancelLongPress('qb-admin-btn')">
+  <a class="qb-btn qb-admin" href="admin.html">
     <span class="qb-ico">🛡️</span>
     <div>
       <div class="qb-title">Panneau Admin</div>
-      <div class="qb-sub">Maintenez appuyé pour accéder</div>
+      <div class="qb-sub">GPS · Gestion · Rapports</div>
     </div>
     <span class="qb-arrow">→</span>
-    <div class="lp-bar" id="lp-bar-qb-admin-btn"></div>
-  </div>
+  </a>
 </div>
 
 <!-- HERO -->
@@ -64,17 +54,7 @@
   </div>
   <div class="hero-links">
     <a class="hl-btn hl-dash" href="dashboard.html">⏱ Aller au Dashboard</a>
-    <!-- ADMIN hero link — appui long aussi -->
-    <div class="hl-btn hl-admin" id="hl-admin-btn"
-         onmousedown="startLongPress(event,'hl-admin-btn')"
-         onmouseup="cancelLongPress('hl-admin-btn')"
-         onmouseleave="cancelLongPress('hl-admin-btn')"
-         ontouchstart="startLongPress(event,'hl-admin-btn')"
-         ontouchend="cancelLongPress('hl-admin-btn')"
-         ontouchcancel="cancelLongPress('hl-admin-btn')">
-      🛡️ Admin (maintenir)
-      <div class="lp-bar" id="lp-bar-hl-admin-btn"></div>
-    </div>
+    <a class="hl-btn hl-admin" href="admin.html">🛡️ Aller à l'Admin</a>
   </div>
 </section>
 
@@ -153,7 +133,10 @@
         <input type="file" id="r-photo" accept="image/*" style="display:none" onchange="prevPhoto(event)">
         <div class="photo-pre" id="photo-pre">
           <img id="pre-img" src="" alt="">
-          <div><div class="photo-pre-n" id="pre-nm">—</div><div style="font-size:.7rem;color:var(--muted);margin-top:2px">✓ Prêt</div></div>
+          <div>
+            <div class="photo-pre-n" id="pre-nm">—</div>
+            <div style="font-size:.7rem;color:var(--muted);margin-top:2px">✓ Prêt</div>
+          </div>
         </div>
       </div>
       <button class="btn-submit" id="r-btn" onclick="doRegister()"><span>Créer mon compte</span></button>
@@ -162,33 +145,11 @@
   </div>
 </div>
 
-<!-- ══ ADMIN PASSWORD MODAL ══ -->
-<div class="adm-overlay" id="adm-overlay" onclick="admBgClose(event)">
-  <div class="adm-modal" id="adm-modal">
-    <div class="adm-head">
-      <div class="adm-shield">🛡️</div>
-      <div class="adm-title">Accès Administrateur</div>
-      <div class="adm-sub">Entrez le mot de passe administrateur<br>pour accéder au panneau de gestion</div>
-    </div>
-    <div class="adm-hint">🔒 Zone sécurisée — Accès restreint</div>
-    <div class="adm-err" id="adm-err">Mot de passe incorrect. Réessayez.</div>
-    <div class="adm-attempts" id="adm-attempts"></div>
-    <div class="adm-input-wrap">
-      <input type="password" class="adm-input" id="adm-pass"
-             placeholder="Mot de passe admin"
-             onkeydown="if(event.key==='Enter')checkAdminPass()">
-      <button class="adm-eye" id="adm-eye" onclick="toggleAdmEye()">👁</button>
-    </div>
-    <button class="adm-btn" id="adm-btn" onclick="checkAdminPass()">
-      <span>Accéder au panneau</span>
-    </button>
-    <button class="adm-cancel" onclick="closeAdmModal()">Annuler</button>
-  </div>
-</div>
-
+<!-- TOASTS -->
 <div class="toasts" id="toasts"></div>
-   <script type="module" src="alice.js"></script>
+
+<!-- SCRIPT PRINCIPAL -->
+<script src="index.js"></script>
+
 </body>
 </html>
-
-
