@@ -386,11 +386,24 @@ const db  = getFirestore(app);
 window._db = db;
 window._FS = { collection, doc, setDoc, getDoc, getDocs, query, where, orderBy, limit, onSnapshot, serverTimestamp };
 
-/* ── Check session ── */
+/* ── Check session : si connecté, afficher boutons "retour" mais ne pas forcer la redirection ── */
 const sess = sessionStorage.getItem('uttloko_user');
 if (sess) {
-  const u = JSON.parse(sess);
-  window.location.href = u.role === 'admin' ? 'admin.html' : 'dashboard.html';
+  // Afficher le nom dans la nav et un bouton retour
+  try {
+    const u = JSON.parse(sess);
+    const navActions = document.querySelector('.nav-actions');
+    if (navActions) {
+      navActions.innerHTML = `
+        <span style="font-size:.82rem;color:var(--muted);padding:0 6px">
+          👋 ${u.prenom || ''}
+        </span>
+        <a href="dashboard.html" style="padding:9px 18px;border-radius:10px;border:1px solid rgba(168,230,61,.3);background:rgba(168,230,61,.08);color:var(--lime);font-size:.85rem;font-weight:600;text-decoration:none;transition:all .2s">⏱ Mon espace</a>
+        ${u.role==='admin' ? `<a href="admin.html" style="padding:9px 18px;border-radius:10px;border:none;background:var(--lime);color:var(--bg);font-size:.85rem;font-weight:700;text-decoration:none">🛡️ Admin</a>` : ''}
+        <button onclick="sessionStorage.removeItem('uttloko_user');location.reload()" style="padding:9px 16px;border-radius:10px;border:1px solid rgba(239,68,68,.2);background:transparent;color:#fca5a5;font-size:.82rem;cursor:pointer">Déco</button>
+      `;
+    }
+  } catch(e) {}
 }
 
 /* ── Live stats ── */
