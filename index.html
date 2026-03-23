@@ -191,6 +191,42 @@ footer{position:relative;z-index:1;border-top:1px solid rgba(168,230,61,.07);
   .fr{grid-template-columns:1fr}
   footer{padding:20px 18px;flex-direction:column;text-align:center}
 }
+
+/* ── QUICK ACCESS BAR ── */
+.quick-bar{position:fixed;top:64px;left:0;right:0;z-index:150;
+  display:flex;align-items:center;gap:10px;padding:10px 40px;
+  background:rgba(8,14,10,.96);backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(168,230,61,.08)}
+.qb-label{font-size:.72rem;font-weight:600;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.8px;white-space:nowrap;margin-right:4px}
+.qb-btn{display:flex;align-items:center;gap:10px;padding:8px 16px;border-radius:11px;
+  text-decoration:none;transition:all .22s;flex:1;max-width:280px}
+.qb-dash{background:rgba(168,230,61,.08);border:1px solid rgba(168,230,61,.2);color:var(--lime)}
+.qb-dash:hover{background:rgba(168,230,61,.16);border-color:rgba(168,230,61,.5);transform:translateY(-1px)}
+.qb-admin{background:rgba(249,115,22,.07);border:1px solid rgba(249,115,22,.2);color:var(--orange)}
+.qb-admin:hover{background:rgba(249,115,22,.14);border-color:rgba(249,115,22,.5);transform:translateY(-1px)}
+.qb-ico{font-size:1.2rem;flex-shrink:0}
+.qb-title{font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700}
+.qb-sub{font-size:.68rem;opacity:.65;margin-top:1px}
+.qb-arrow{margin-left:auto;font-size:.9rem;opacity:.6;transition:transform .2s}
+.qb-btn:hover .qb-arrow{transform:translateX(3px);opacity:1}
+/* ── HERO DIRECT LINKS ── */
+.hero-links{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
+  animation:fadeUp .6s .45s ease both}
+.hl-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;
+  border-radius:11px;font-size:.82rem;font-weight:600;text-decoration:none;
+  transition:all .22s;border:1px dashed rgba(168,230,61,.3);color:var(--muted)}
+.hl-btn:hover{color:var(--text);border-style:solid}
+.hl-dash:hover{border-color:var(--lime);background:rgba(168,230,61,.07);color:var(--lime)}
+.hl-admin:hover{border-color:var(--orange);background:rgba(249,115,22,.07);color:var(--orange)}
+/* Adjust hero padding for quick bar */
+.hero{padding-top:182px !important}
+@media(max-width:600px){
+  .quick-bar{padding:8px 14px;gap:7px;flex-wrap:wrap}
+  .qb-label{display:none}
+  .qb-btn{max-width:100%;flex:1;min-width:0}
+  .hero{padding-top:210px !important}
+}
 </style>
 </head>
 <body>
@@ -207,6 +243,27 @@ footer{position:relative;z-index:1;border-top:1px solid rgba(168,230,61,.07);
   </div>
 </nav>
 
+<!-- QUICK ACCESS BAR -->
+<div class="quick-bar">
+  <div class="qb-label">Accès rapide :</div>
+  <a class="qb-btn qb-dash" href="dashboard.html">
+    <span class="qb-ico">⏱</span>
+    <div>
+      <div class="qb-title">Espace Enseignant</div>
+      <div class="qb-sub">Pointage · Historique · Communauté</div>
+    </div>
+    <span class="qb-arrow">→</span>
+  </a>
+  <a class="qb-btn qb-admin" href="admin.html">
+    <span class="qb-ico">🛡️</span>
+    <div>
+      <div class="qb-title">Panneau Admin</div>
+      <div class="qb-sub">GPS · Gestion · Rapports</div>
+    </div>
+    <span class="qb-arrow">→</span>
+  </a>
+</div>
+
 <!-- HERO -->
 <section class="hero">
   <div class="hero-tag"><span class="tag-dot"></span>Système actif — Session 2025-2026</div>
@@ -215,6 +272,10 @@ footer{position:relative;z-index:1;border-top:1px solid rgba(168,230,61,.07);
   <div class="hero-btns">
     <button class="cta-main" onclick="openAuth('register')">⚡ Créer mon compte</button>
     <button class="cta-sec" onclick="openAuth('login')">Se connecter →</button>
+  </div>
+  <div class="hero-links">
+    <a class="hl-btn hl-dash" href="dashboard.html">⏱ Aller au Dashboard</a>
+    <a class="hl-btn hl-admin" href="admin.html">🛡️ Aller à l'Admin</a>
   </div>
 </section>
 
