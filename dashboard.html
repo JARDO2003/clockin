@@ -268,6 +268,51 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .cmt-send:hover{background:var(--lime2)}
 .no-cmts{font-size:.78rem;color:var(--dim);text-align:center;padding:8px 0}
 
+/* POST OWNER MENU */
+.post-menu-wrap{position:relative}
+.post-menu-btn{width:30px;height:30px;border-radius:8px;border:none;background:transparent;
+  color:var(--muted);cursor:pointer;font-size:1.2rem;display:flex;align-items:center;
+  justify-content:center;transition:all .2s;line-height:1;flex-shrink:0}
+.post-menu-btn:hover{background:rgba(255,255,255,.07);color:var(--text)}
+.post-menu-dd{position:absolute;top:34px;right:0;background:var(--bg2);
+  border:1px solid rgba(168,230,61,.15);border-radius:12px;padding:5px;
+  min-width:148px;z-index:50;box-shadow:0 8px 32px rgba(0,0,0,.5);
+  display:none;flex-direction:column;gap:2px}
+.post-menu-dd.open{display:flex}
+.pm-item{padding:8px 12px;border-radius:8px;border:none;background:transparent;
+  color:var(--text);font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;
+  cursor:pointer;text-align:left;transition:all .18s;display:flex;align-items:center;gap:8px;width:100%}
+.pm-item:hover{background:rgba(168,230,61,.09);color:var(--lime)}
+.pm-item.danger{color:#fca5a5}
+.pm-item.danger:hover{background:rgba(239,68,68,.1);color:#f87171}
+/* EDIT POST MODAL */
+#edit-ov .modal{text-align:left}
+.edit-ta{width:100%;min-height:110px;padding:12px 14px;border-radius:12px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(168,230,61,.15);
+  color:var(--text);font-family:'DM Sans',sans-serif;font-size:.88rem;
+  outline:none;resize:vertical;transition:border .2s;margin-bottom:13px}
+.edit-ta:focus{border-color:var(--lime)}
+.edit-actions{display:flex;gap:9px}
+.btn-save{flex:1;padding:11px;border-radius:11px;border:none;background:var(--lime);
+  color:var(--bg);font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-save:hover{background:var(--lime2)}
+.btn-cancel-edit{flex:1;padding:11px;border-radius:11px;border:1px solid rgba(168,230,61,.2);
+  background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;
+  font-size:.88rem;cursor:pointer;transition:all .2s}
+.btn-cancel-edit:hover{border-color:var(--lime);color:var(--lime)}
+/* DELETE CONFIRM */
+#del-ov .modal{text-align:center}
+.del-icon{font-size:2.6rem;margin-bottom:10px}
+.del-actions{display:flex;gap:9px;margin-top:16px}
+.btn-del-confirm{flex:1;padding:11px;border-radius:11px;
+  background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.3);
+  font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-del-confirm:hover{background:rgba(239,68,68,.26)}
+.btn-del-cancel{flex:1;padding:11px;border-radius:11px;border:1px solid rgba(168,230,61,.2);
+  background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;
+  font-size:.88rem;cursor:pointer;transition:all .2s}
+.btn-del-cancel:hover{border-color:var(--lime);color:var(--lime)}
+
 .toasts{position:fixed;bottom:18px;right:18px;z-index:9999;
   display:flex;flex-direction:column;gap:9px}
 .toast{padding:11px 16px;border-radius:12px;max-width:285px;font-size:.8rem;
@@ -444,6 +489,33 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
     <div class="fg"><label class="fl">Heure d'arrivée effective</label><input type="time" class="fi" id="exp-heure" readonly style="opacity:.7;cursor:not-allowed;pointer-events:none"></div>
     <div class="fg"><label class="fl">Détails (optionnel)</label><textarea class="fta" id="exp-det" placeholder="Décrivez brièvement..."></textarea></div>
     <button class="btn-exp" onclick="submitExp()">Envoyer l'explication →</button>
+  </div>
+</div>
+
+<!-- EDIT POST MODAL -->
+<div class="overlay" id="edit-ov">
+  <div class="modal">
+    <button class="modal-x" onclick="closeEditModal()">✕</button>
+    <h2 style="margin-bottom:14px">✏️ Modifier la publication</h2>
+    <textarea class="edit-ta" id="edit-ta" placeholder="Modifier votre texte..."></textarea>
+    <div class="edit-actions">
+      <button class="btn-cancel-edit" onclick="closeEditModal()">Annuler</button>
+      <button class="btn-save" id="edit-save-btn" onclick="saveEditPost()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="overlay" id="del-ov">
+  <div class="modal">
+    <button class="modal-x" onclick="closeDelModal()">✕</button>
+    <div class="del-icon">🗑️</div>
+    <h2>Supprimer la publication ?</h2>
+    <p>Cette action est irréversible. La publication et tous ses commentaires seront définitivement supprimés.</p>
+    <div class="del-actions">
+      <button class="btn-del-cancel" onclick="closeDelModal()">Annuler</button>
+      <button class="btn-del-confirm" id="del-confirm-btn" onclick="confirmDeletePost()">Supprimer</button>
+    </div>
   </div>
 </div>
 
@@ -769,17 +841,27 @@ function loadFeed(){
     if(snap.empty){feed.innerHTML='<div style="text-align:center;padding:38px;color:var(--muted)">Aucune publication. Soyez le premier !</div>';return;}
     feed.innerHTML=snap.docs.map(d=>{
       const p=d.data();const id=d.id;
+      const isOwner=p.uid===U.uid;
       const av=p.uPhoto?`<img src="${p.uPhoto}">`:`<span>${(p.uName||'?')[0]}</span>`;
       const tm=new Date(p.tsMs).toLocaleString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
       const lc=p.likeCount||0;
       const cc=p.commentCount||0;
       const liked=p.likes&&p.likes[U.uid];
       const media=p.mediaURL?(p.mediaType==='video'?`<video class="post-vid" src="${p.mediaURL}" crossorigin="anonymous" referrerpolicy="no-referrer" controls></video>`:`<img class="post-img" src="${p.mediaURL}" crossorigin="anonymous" referrerpolicy="no-referrer" onclick="window.open('${p.mediaURL}','_blank')">`): '';
+      const ownerMenu=isOwner?`
+        <div class="post-menu-wrap">
+          <button class="post-menu-btn" onclick="togglePostMenu('${id}',event)" title="Options">⋯</button>
+          <div class="post-menu-dd" id="pmenu-${id}">
+            <button class="pm-item" onclick="openEditModal('${id}')">✏️ Modifier</button>
+            <button class="pm-item danger" onclick="openDelModal('${id}')">🗑️ Supprimer</button>
+          </div>
+        </div>`:'';
       return`<div class="post" id="post-${id}">
         <div class="post-hd">
           <div class="p-av">${av}</div>
-          <div><div class="p-nm">${p.uName||'—'}</div><div class="p-tm">${p.uDept?p.uDept+' · ':''}${tm}</div></div>
+          <div><div class="p-nm">${p.uName||'—'}</div><div class="p-tm">${p.uDept?p.uDept+' · ':''}${tm}${p.edited?' · <span style="color:var(--dim);font-style:italic">modifié</span>':''}</div></div>
           <span class="p-dept">Enseignant</span>
+          ${ownerMenu}
         </div>
         ${p.txt?`<div class="post-txt">${p.txt}</div>`:''}
         ${media}
@@ -849,6 +931,72 @@ window.sendComment=async(postId)=>{
     await updateDoc(doc(db,'posts',postId),{commentCount:increment(1)});
   }catch(e){toast('Erreur commentaire','err');}
   inp.disabled=false;inp.focus();
+};
+
+/* ── POST MENU ── */
+window.togglePostMenu=(postId,e)=>{
+  e.stopPropagation();
+  const dd=document.getElementById('pmenu-'+postId);
+  const isOpen=dd.classList.contains('open');
+  // Close all other menus first
+  document.querySelectorAll('.post-menu-dd.open').forEach(el=>el.classList.remove('open'));
+  if(!isOpen)dd.classList.add('open');
+};
+document.addEventListener('click',()=>{
+  document.querySelectorAll('.post-menu-dd.open').forEach(el=>el.classList.remove('open'));
+});
+
+/* ── EDIT POST ── */
+window._editPostId=null;
+window.openEditModal=(postId)=>{
+  document.querySelectorAll('.post-menu-dd.open').forEach(el=>el.classList.remove('open'));
+  window._editPostId=postId;
+  // Get current text from the rendered post
+  const postEl=document.getElementById('post-'+postId);
+  const txtEl=postEl?.querySelector('.post-txt');
+  document.getElementById('edit-ta').value=txtEl?txtEl.textContent:'';
+  document.getElementById('edit-ov').classList.add('open');
+  setTimeout(()=>document.getElementById('edit-ta').focus(),200);
+};
+window.closeEditModal=()=>{
+  document.getElementById('edit-ov').classList.remove('open');
+  window._editPostId=null;
+};
+window.saveEditPost=async()=>{
+  const id=window._editPostId;if(!id)return;
+  const txt=document.getElementById('edit-ta').value.trim();
+  if(!txt){toast('Le texte ne peut pas être vide.','err');return;}
+  const btn=document.getElementById('edit-save-btn');
+  btn.disabled=true;btn.textContent='Enregistrement...';
+  try{
+    await updateDoc(doc(db,'posts',id),{txt,edited:true,editedAt:serverTimestamp()});
+    closeEditModal();
+    toast('Publication modifiée !','ok');
+  }catch(e){toast('Erreur modification','err');}
+  btn.disabled=false;btn.textContent='Enregistrer';
+};
+
+/* ── DELETE POST ── */
+window._delPostId=null;
+window.openDelModal=(postId)=>{
+  document.querySelectorAll('.post-menu-dd.open').forEach(el=>el.classList.remove('open'));
+  window._delPostId=postId;
+  document.getElementById('del-ov').classList.add('open');
+};
+window.closeDelModal=()=>{
+  document.getElementById('del-ov').classList.remove('open');
+  window._delPostId=null;
+};
+window.confirmDeletePost=async()=>{
+  const id=window._delPostId;if(!id)return;
+  const btn=document.getElementById('del-confirm-btn');
+  btn.disabled=true;btn.textContent='Suppression...';
+  try{
+    await deleteDoc(doc(db,'posts',id));
+    closeDelModal();
+    toast('Publication supprimée.','ok');
+  }catch(e){toast('Erreur suppression','err');}
+  btn.disabled=false;btn.textContent='Supprimer';
 };
 
 window.toggleLike=async(id,isLiked)=>{
