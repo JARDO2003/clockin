@@ -20,6 +20,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 @keyframes scanV{0%{top:10%}100%{top:84%}}
 @keyframes pls{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes recPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
+@keyframes countdown{from{stroke-dashoffset:0}to{stroke-dashoffset:282}}
 
 /* ── TOPBAR ── */
 .topbar{position:fixed;top:0;left:0;right:0;z-index:100;height:60px;
@@ -188,62 +190,6 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   font-weight:500;transition:all .2s;display:flex;align-items:center;gap:5px}
 .act-b:hover{background:var(--lime4);color:var(--lime)}
 .act-b.liked{color:#f87171}
-
-/* MODALS */
-.overlay{position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.82);
-  backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;
-  padding:20px;opacity:0;pointer-events:none;transition:opacity .28s}
-.overlay.open{opacity:1;pointer-events:all}
-.modal{background:var(--bg2);border:1px solid rgba(168,230,61,.14);border-radius:24px;
-  width:100%;max-width:430px;padding:34px;position:relative;text-align:center;
-  transform:scale(.95) translateY(16px);transition:transform .28s;max-height:92vh;overflow-y:auto}
-.overlay.open .modal{transform:scale(1) translateY(0)}
-.modal-x{position:absolute;top:13px;right:13px;width:32px;height:32px;border-radius:8px;
-  background:rgba(255,255,255,.05);border:none;cursor:pointer;color:var(--muted);
-  font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all .2s}
-.modal-x:hover{background:rgba(239,68,68,.14);color:var(--red)}
-.modal h2{font-family:'Syne',sans-serif;font-size:1.35rem;font-weight:800;margin-bottom:5px}
-.modal p{color:var(--muted);font-size:.83rem;margin-bottom:16px;line-height:1.6}
-
-/* FACE STEPS */
-.f-steps{display:flex;gap:5px;justify-content:center;margin-bottom:16px}
-.fs-d{width:7px;height:7px;border-radius:50%;background:var(--card2);transition:all .3s}
-.fs-d.done{background:var(--lime)}
-.fs-d.active{background:var(--lime);box-shadow:0 0 0 3px rgba(168,230,61,.22)}
-.cam-wrap{position:relative;border-radius:15px;overflow:hidden;background:#000;margin-bottom:14px}
-#face-vid{width:100%;height:210px;object-fit:cover;display:block}
-.cam-ring{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
-.cam-ring svg{width:150px;height:150px;opacity:.88}
-.scan-ln{position:absolute;left:50%;top:15%;transform:translateX(-50%);
-  width:130px;height:1.5px;background:linear-gradient(90deg,transparent,var(--lime),transparent);
-  border-radius:2px;animation:scanV 2.4s ease-in-out infinite}
-#face-cv{display:none}
-.face-st{font-size:.83rem;color:var(--muted);margin-bottom:13px}
-.btn-cap{width:100%;padding:12px;border-radius:12px;border:none;background:var(--lime);
-  color:var(--bg);font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;
-  cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px}
-.btn-cap:disabled{opacity:.38;cursor:not-allowed}
-
-/* EXP FORM */
-.fg{margin-bottom:13px;text-align:left}
-.fl{display:block;font-size:.7rem;font-weight:600;color:var(--muted);
-  margin-bottom:6px;letter-spacing:.5px;text-transform:uppercase}
-.fi,.fs,.fta{width:100%;padding:11px 13px;border-radius:10px;
-  background:rgba(255,255,255,.05);border:1px solid rgba(168,230,61,.13);
-  color:var(--text);font-family:'DM Sans',sans-serif;font-size:.86rem;
-  outline:none;transition:all .2s}
-.fi:focus,.fs:focus,.fta:focus{border-color:var(--lime);background:rgba(168,230,61,.04)}
-.fi::placeholder,.fta::placeholder{color:rgba(122,172,136,.3)}
-.fs option{background:var(--bg2)}
-.fta{min-height:86px;resize:vertical}
-.btn-exp{width:100%;padding:12px;border-radius:12px;border:none;background:var(--lime);
-  color:var(--bg);font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;
-  cursor:pointer;transition:all .2s;margin-top:5px}
-.btn-exp:hover{background:var(--lime2)}
-.a-err{padding:10px 13px;border-radius:9px;font-size:.8rem;font-weight:500;margin-bottom:11px;
-  background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.28);color:#fca5a5}
-
-/* UPLOAD PROGRESS */
 .upload-progress{display:none;margin-bottom:11px;background:rgba(168,230,61,.06);border:1px solid rgba(168,230,61,.2);border-radius:11px;padding:11px 14px}
 .up-label{font-size:.75rem;color:var(--muted);margin-bottom:7px;display:flex;justify-content:space-between}
 .up-bar-bg{background:var(--card2);border-radius:100px;height:5px;overflow:hidden}
@@ -268,50 +214,82 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .cmt-send:hover{background:var(--lime2)}
 .no-cmts{font-size:.78rem;color:var(--dim);text-align:center;padding:8px 0}
 
-/* POST OWNER MENU */
-.post-menu-wrap{position:relative}
-.post-menu-btn{width:30px;height:30px;border-radius:8px;border:none;background:transparent;
-  color:var(--muted);cursor:pointer;font-size:1.2rem;display:flex;align-items:center;
-  justify-content:center;transition:all .2s;line-height:1;flex-shrink:0}
-.post-menu-btn:hover{background:rgba(255,255,255,.07);color:var(--text)}
-.post-menu-dd{position:absolute;top:34px;right:0;background:var(--bg2);
-  border:1px solid rgba(168,230,61,.15);border-radius:12px;padding:5px;
-  min-width:148px;z-index:50;box-shadow:0 8px 32px rgba(0,0,0,.5);
-  display:none;flex-direction:column;gap:2px}
-.post-menu-dd.open{display:flex}
-.pm-item{padding:8px 12px;border-radius:8px;border:none;background:transparent;
-  color:var(--text);font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;
-  cursor:pointer;text-align:left;transition:all .18s;display:flex;align-items:center;gap:8px;width:100%}
-.pm-item:hover{background:rgba(168,230,61,.09);color:var(--lime)}
-.pm-item.danger{color:#fca5a5}
-.pm-item.danger:hover{background:rgba(239,68,68,.1);color:#f87171}
-/* EDIT POST MODAL */
-#edit-ov .modal{text-align:left}
-.edit-ta{width:100%;min-height:110px;padding:12px 14px;border-radius:12px;
-  background:rgba(255,255,255,.05);border:1px solid rgba(168,230,61,.15);
-  color:var(--text);font-family:'DM Sans',sans-serif;font-size:.88rem;
-  outline:none;resize:vertical;transition:border .2s;margin-bottom:13px}
-.edit-ta:focus{border-color:var(--lime)}
-.edit-actions{display:flex;gap:9px}
-.btn-save{flex:1;padding:11px;border-radius:11px;border:none;background:var(--lime);
-  color:var(--bg);font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s}
-.btn-save:hover{background:var(--lime2)}
-.btn-cancel-edit{flex:1;padding:11px;border-radius:11px;border:1px solid rgba(168,230,61,.2);
-  background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;
-  font-size:.88rem;cursor:pointer;transition:all .2s}
-.btn-cancel-edit:hover{border-color:var(--lime);color:var(--lime)}
-/* DELETE CONFIRM */
-#del-ov .modal{text-align:center}
-.del-icon{font-size:2.6rem;margin-bottom:10px}
-.del-actions{display:flex;gap:9px;margin-top:16px}
-.btn-del-confirm{flex:1;padding:11px;border-radius:11px;
-  background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.3);
-  font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s}
-.btn-del-confirm:hover{background:rgba(239,68,68,.26)}
-.btn-del-cancel{flex:1;padding:11px;border-radius:11px;border:1px solid rgba(168,230,61,.2);
-  background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;
-  font-size:.88rem;cursor:pointer;transition:all .2s}
-.btn-del-cancel:hover{border-color:var(--lime);color:var(--lime)}
+/* MODALS */
+.overlay{position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.82);
+  backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;
+  padding:20px;opacity:0;pointer-events:none;transition:opacity .28s}
+.overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--bg2);border:1px solid rgba(168,230,61,.14);border-radius:24px;
+  width:100%;max-width:430px;padding:34px;position:relative;text-align:center;
+  transform:scale(.95) translateY(16px);transition:transform .28s;max-height:92vh;overflow-y:auto}
+.overlay.open .modal{transform:scale(1) translateY(0)}
+.modal-x{position:absolute;top:13px;right:13px;width:32px;height:32px;border-radius:8px;
+  background:rgba(255,255,255,.05);border:none;cursor:pointer;color:var(--muted);
+  font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.modal-x:hover{background:rgba(239,68,68,.14);color:var(--red)}
+.modal h2{font-family:'Syne',sans-serif;font-size:1.35rem;font-weight:800;margin-bottom:5px}
+.modal p{color:var(--muted);font-size:.83rem;margin-bottom:16px;line-height:1.6}
+
+/* FACE / VIDEO STEPS */
+.f-steps{display:flex;gap:5px;justify-content:center;margin-bottom:16px}
+.fs-d{width:7px;height:7px;border-radius:50%;background:var(--card2);transition:all .3s}
+.fs-d.done{background:var(--lime)}
+.fs-d.active{background:var(--lime);box-shadow:0 0 0 3px rgba(168,230,61,.22)}
+.cam-wrap{position:relative;border-radius:15px;overflow:hidden;background:#000;margin-bottom:14px}
+#face-vid{width:100%;height:210px;object-fit:cover;display:block}
+.cam-ring{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.cam-ring svg{width:150px;height:150px;opacity:.88}
+.scan-ln{position:absolute;left:50%;top:15%;transform:translateX(-50%);
+  width:130px;height:1.5px;background:linear-gradient(90deg,transparent,var(--lime),transparent);
+  border-radius:2px;animation:scanV 2.4s ease-in-out infinite}
+/* Recording indicator */
+.rec-indicator{position:absolute;top:10px;left:10px;display:none;
+  align-items:center;gap:6px;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);
+  border-radius:20px;padding:5px 10px;font-size:.72rem;font-weight:700;color:#f87171}
+.rec-indicator.active{display:flex}
+.rec-dot{width:8px;height:8px;border-radius:50%;background:#ef4444;animation:recPulse 1s infinite}
+/* Countdown ring */
+.countdown-wrap{position:absolute;top:10px;right:10px;width:42px;height:42px;display:none}
+.countdown-wrap.active{display:block}
+.countdown-svg{width:42px;height:42px;transform:rotate(-90deg)}
+.cd-track{fill:none;stroke:rgba(255,255,255,.15);stroke-width:3}
+.cd-prog{fill:none;stroke:var(--lime);stroke-width:3;stroke-linecap:round;
+  stroke-dasharray:282;stroke-dashoffset:0;transition:none}
+.cd-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-size:.95rem;font-weight:800;color:#fff}
+
+#face-cv{display:none}
+.face-st{font-size:.83rem;color:var(--muted);margin-bottom:13px}
+.btn-cap{width:100%;padding:12px;border-radius:12px;border:none;background:var(--lime);
+  color:var(--bg);font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;
+  cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px}
+.btn-cap:disabled{opacity:.38;cursor:not-allowed}
+.btn-cap.recording{background:var(--red);color:#fff;animation:recPulse 1s infinite}
+
+/* video upload progress in modal */
+.vid-up-bar{display:none;margin-top:10px;background:rgba(168,230,61,.06);border:1px solid rgba(168,230,61,.15);border-radius:9px;padding:9px 13px}
+.vid-up-label{font-size:.73rem;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:5px}
+.vid-up-bg{background:var(--card2);border-radius:100px;height:4px;overflow:hidden}
+.vid-up-fill{height:100%;background:var(--lime);border-radius:100px;width:0%;transition:width .15s}
+
+/* EXP FORM */
+.fg{margin-bottom:13px;text-align:left}
+.fl{display:block;font-size:.7rem;font-weight:600;color:var(--muted);
+  margin-bottom:6px;letter-spacing:.5px;text-transform:uppercase}
+.fi,.fs,.fta{width:100%;padding:11px 13px;border-radius:10px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(168,230,61,.13);
+  color:var(--text);font-family:'DM Sans',sans-serif;font-size:.86rem;
+  outline:none;transition:all .2s}
+.fi:focus,.fs:focus,.fta:focus{border-color:var(--lime);background:rgba(168,230,61,.04)}
+.fi::placeholder,.fta::placeholder{color:rgba(122,172,136,.3)}
+.fs option{background:var(--bg2)}
+.fta{min-height:86px;resize:vertical}
+.btn-exp{width:100%;padding:12px;border-radius:12px;border:none;background:var(--lime);
+  color:var(--bg);font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;
+  cursor:pointer;transition:all .2s;margin-top:5px}
+.btn-exp:hover{background:var(--lime2)}
+.a-err{padding:10px 13px;border-radius:9px;font-size:.8rem;font-weight:500;margin-bottom:11px;
+  background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.28);color:#fca5a5}
 
 .toasts{position:fixed;bottom:18px;right:18px;z-index:9999;
   display:flex;flex-direction:column;gap:9px}
@@ -443,12 +421,12 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   </div>
 </div>
 
-<!-- FACE MODAL -->
+<!-- FACE / VIDEO MODAL -->
 <div class="overlay" id="face-ov">
   <div class="modal">
     <button class="modal-x" onclick="closeFace()">✕</button>
     <h2 id="face-title">Validation faciale</h2>
-    <p id="face-desc">Centrez votre visage dans le cercle</p>
+    <p id="face-desc">Centrez votre visage · une vidéo de 2s sera enregistrée</p>
     <div class="f-steps">
       <div class="fs-d active" id="fd1"></div>
       <div class="fs-d" id="fd2"></div>
@@ -459,11 +437,28 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
       <div class="cam-ring">
         <svg viewBox="0 0 150 150"><circle cx="75" cy="75" r="65" fill="none" stroke="rgba(168,230,61,.6)" stroke-width="1.5" stroke-dasharray="8 5"/></svg>
       </div>
-      <div class="scan-ln"></div>
+      <div class="scan-ln" id="scan-ln"></div>
+      <!-- REC indicator -->
+      <div class="rec-indicator" id="rec-ind">
+        <div class="rec-dot"></div> REC
+      </div>
+      <!-- Countdown ring -->
+      <div class="countdown-wrap" id="cd-wrap">
+        <svg class="countdown-svg" viewBox="0 0 42 42">
+          <circle class="cd-track" cx="21" cy="21" r="18"/>
+          <circle class="cd-prog" id="cd-prog" cx="21" cy="21" r="18"/>
+        </svg>
+        <div class="cd-num" id="cd-num">2</div>
+      </div>
     </div>
     <canvas id="face-cv"></canvas>
     <div class="face-st" id="face-st">Démarrage caméra...</div>
-    <button class="btn-cap" id="btn-cap" disabled onclick="doCapture()">📸 Capturer et valider</button>
+    <!-- Video upload progress -->
+    <div class="vid-up-bar" id="vid-up-bar">
+      <div class="vid-up-label"><span>Envoi de la vidéo...</span><span id="vid-up-pct">0%</span></div>
+      <div class="vid-up-bg"><div class="vid-up-fill" id="vid-up-fill"></div></div>
+    </div>
+    <button class="btn-cap" id="btn-cap" disabled onclick="doCapture()">🎥 Démarrer l'enregistrement</button>
   </div>
 </div>
 
@@ -492,36 +487,9 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   </div>
 </div>
 
-<!-- EDIT POST MODAL -->
-<div class="overlay" id="edit-ov">
-  <div class="modal">
-    <button class="modal-x" onclick="closeEditModal()">✕</button>
-    <h2 style="margin-bottom:14px">✏️ Modifier la publication</h2>
-    <textarea class="edit-ta" id="edit-ta" placeholder="Modifier votre texte..."></textarea>
-    <div class="edit-actions">
-      <button class="btn-cancel-edit" onclick="closeEditModal()">Annuler</button>
-      <button class="btn-save" id="edit-save-btn" onclick="saveEditPost()">Enregistrer</button>
-    </div>
-  </div>
-</div>
-
-<!-- DELETE CONFIRM MODAL -->
-<div class="overlay" id="del-ov">
-  <div class="modal">
-    <button class="modal-x" onclick="closeDelModal()">✕</button>
-    <div class="del-icon">🗑️</div>
-    <h2>Supprimer la publication ?</h2>
-    <p>Cette action est irréversible. La publication et tous ses commentaires seront définitivement supprimés.</p>
-    <div class="del-actions">
-      <button class="btn-del-cancel" onclick="closeDelModal()">Annuler</button>
-      <button class="btn-del-confirm" id="del-confirm-btn" onclick="confirmDeletePost()">Supprimer</button>
-    </div>
-  </div>
-</div>
-
 <div class="toasts" id="toasts"></div>
 
-<!-- FIRESTORE -->
+<!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
 import {
@@ -536,12 +504,10 @@ const db=getFirestore(app);
 window._db=db;
 window._FS={collection,doc,setDoc,getDoc,getDocs,addDoc,query,where,orderBy,limit,onSnapshot,updateDoc,deleteDoc,serverTimestamp,increment};
 
-/* ── Session check (souple : pas de redirection forcée) ── */
 const sess=sessionStorage.getItem('uttloko_user');
 const U=sess ? JSON.parse(sess) : {role:'teacher',nom:'Visiteur',prenom:'Mode',uid:'guest',dept:'',photoURL:''};
 window._U=U;
 
-/* ── UI init ── */
 const init=((U.prenom||'?')[0]+(U.nom||'?')[0]).toUpperCase();
 document.getElementById('u-init').textContent=init;
 document.getElementById('u-nm').textContent=sess ? `${U.prenom} ${U.nom}` : 'Non connecté';
@@ -553,7 +519,7 @@ if(U.photoURL){
 }
 
 window._geoOk=false;window._locCfg=null;window._ckType=null;window._stream=null;
-window._mFile=null;window._mType=null;
+window._mFile=null;window._mType=null;window._mediaRec=null;window._recChunks=[];
 
 /* ── Load location config ── */
 (async()=>{
@@ -561,7 +527,7 @@ window._mFile=null;window._mType=null;
   if(s.exists())window._locCfg=s.data();
 })();
 
-/* ── Geolocation watch ── */
+/* ── Haversine ── */
 function haversine(la1,lo1,la2,lo2){
   const R=6371e3,p=Math.PI/180;
   const a=Math.sin((la2-la1)*p/2)**2+Math.cos(la1*p)*Math.cos(la2*p)*Math.sin((lo2-lo1)*p/2)**2;
@@ -641,50 +607,155 @@ function openCam(){
   fStep(1);
   document.getElementById('face-st').textContent='Démarrage caméra...';
   document.getElementById('btn-cap').disabled=true;
-  navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false})
+  document.getElementById('btn-cap').textContent='🎥 Démarrer l\'enregistrement';
+  document.getElementById('btn-cap').className='btn-cap';
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:640},height:{ideal:480}},audio:false})
     .then(s=>{
       window._stream=s;
       document.getElementById('face-vid').srcObject=s;
-      document.getElementById('face-st').textContent='Centrez votre visage dans le cercle.';
+      document.getElementById('face-st').textContent='Centrez votre visage · cliquez pour enregistrer 2s.';
       document.getElementById('btn-cap').disabled=false;
       fStep(2);
     })
     .catch(()=>{document.getElementById('face-st').textContent='❌ Accès caméra refusé.';});
 }
-function stopCam(){if(window._stream){window._stream.getTracks().forEach(t=>t.stop());window._stream=null;}}
-window.closeFace=()=>{document.getElementById('face-ov').classList.remove('open');stopCam();};
+function stopCam(){
+  if(window._stream){window._stream.getTracks().forEach(t=>t.stop());window._stream=null;}
+}
+window.closeFace=()=>{
+  document.getElementById('face-ov').classList.remove('open');
+  stopCam();
+  stopRecording();
+};
+
+/* ── 2-SECOND VIDEO RECORDING ── */
+function stopRecording(){
+  if(window._mediaRec&&window._mediaRec.state!=='inactive'){
+    try{window._mediaRec.stop();}catch(e){}
+  }
+  window._mediaRec=null;
+  window._recChunks=[];
+  document.getElementById('rec-ind').classList.remove('active');
+  document.getElementById('cd-wrap').classList.remove('active');
+}
 
 window.doCapture=async()=>{
   const btn=document.getElementById('btn-cap');
-  btn.disabled=true;btn.innerHTML='<div class="spinner"></div>';
-  document.getElementById('face-st').textContent='Capture en cours...';
+  if(btn.disabled)return;
+  btn.disabled=true;
   fStep(3);
-  try{
-    const vid=document.getElementById('face-vid');
-    const cv=document.getElementById('face-cv');
-    const MAX=160;
-    let w=vid.videoWidth||320,h=vid.videoHeight||240;
-    if(w===0||h===0){w=320;h=240;}
-    if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}
-    cv.width=w;cv.height=h;
-    cv.getContext('2d').drawImage(vid,0,0,w,h);
-    const faceBase64=cv.toDataURL('image/jpeg',0.72);
-    stopCam();
-    document.getElementById('face-ov').classList.remove('open');
-    await finalizeClock(faceBase64||'');
-  }catch(err){
-    console.error('Capture error',err);
-    // Even if capture fails, still allow clock-in with empty face
-    stopCam();
-    document.getElementById('face-ov').classList.remove('open');
-    await finalizeClock('');
+
+  if(!window._stream){
+    await finalizeClock('','');
+    return;
   }
+
+  // Determine supported MIME
+  const mimeTypes=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm','video/mp4'];
+  let mimeType=mimeTypes.find(m=>MediaRecorder.isTypeSupported(m))||'';
+
+  window._recChunks=[];
+  let rec;
+  try{
+    rec=new MediaRecorder(window._stream,mimeType?{mimeType}:{});
+  }catch(e){
+    rec=new MediaRecorder(window._stream);
+    mimeType=rec.mimeType||'video/webm';
+  }
+  window._mediaRec=rec;
+
+  rec.ondataavailable=e=>{if(e.data&&e.data.size>0)window._recChunks.push(e.data);};
+
+  rec.onstop=async()=>{
+    stopCam();
+    const blob=new Blob(window._recChunks,{type:mimeType||'video/webm'});
+    window._recChunks=[];
+
+    // Show upload progress
+    const upBar=document.getElementById('vid-up-bar');
+    const upFill=document.getElementById('vid-up-fill');
+    const upPct=document.getElementById('vid-up-pct');
+    upBar.style.display='block';
+    upFill.style.width='0%';
+    upPct.textContent='0%';
+    document.getElementById('face-st').textContent='Envoi de la vidéo...';
+
+    // Upload to Cloudinary
+    let videoURL='';
+    try{
+      const fd=new FormData();
+      fd.append('file',blob,'face_clock.webm');
+      fd.append('upload_preset','database');
+      fd.append('resource_type','video');
+      const url=await new Promise((resolve,reject)=>{
+        const xhr=new XMLHttpRequest();
+        xhr.upload.addEventListener('progress',ev=>{
+          if(ev.lengthComputable){
+            const p=Math.round(ev.loaded/ev.total*100);
+            upFill.style.width=p+'%';
+            upPct.textContent=p+'%';
+          }
+        });
+        xhr.addEventListener('load',()=>{
+          try{
+            const j=JSON.parse(xhr.responseText);
+            resolve(j.secure_url||'');
+          }catch(e){resolve('');}
+        });
+        xhr.addEventListener('error',()=>resolve(''));
+        xhr.open('POST','https://api.cloudinary.com/v1_1/djxcqczh1/video/upload');
+        xhr.send(fd);
+      });
+      videoURL=url;
+      upFill.style.width='100%';
+      upPct.textContent='100%';
+      setTimeout(()=>{upBar.style.display='none';},600);
+    }catch(e){
+      upBar.style.display='none';
+      console.warn('Video upload failed',e);
+    }
+
+    document.getElementById('face-ov').classList.remove('open');
+    await finalizeClock('',videoURL);
+  };
+
+  // Start recording
+  rec.start(200); // collect chunks every 200ms
+  document.getElementById('rec-ind').classList.add('active');
+  document.getElementById('cd-wrap').classList.add('active');
+  document.getElementById('face-st').textContent='Enregistrement en cours... 2 secondes';
+  btn.className='btn-cap recording';
+  btn.innerHTML='<div class="spinner"></div> Enregistrement...';
+
+  // Countdown UI
+  const cdProg=document.getElementById('cd-prog');
+  const cdNum=document.getElementById('cd-num');
+  const DURATION=2000;
+  const START=Date.now();
+  const raf=()=>{
+    const elapsed=Date.now()-START;
+    const pct=Math.min(elapsed/DURATION,1);
+    const offset=282*pct; // full circumference ~282
+    cdProg.style.strokeDashoffset=offset;
+    cdNum.textContent=Math.max(0,Math.ceil((DURATION-elapsed)/1000));
+    if(elapsed<DURATION)requestAnimationFrame(raf);
+  };
+  requestAnimationFrame(raf);
+
+  // Stop after 2 seconds
+  setTimeout(()=>{
+    if(window._mediaRec&&window._mediaRec.state==='recording'){
+      window._mediaRec.stop();
+    }
+    document.getElementById('rec-ind').classList.remove('active');
+    document.getElementById('cd-wrap').classList.remove('active');
+  },DURATION);
 };
 
-async function finalizeClock(faceBase64){
+/* ── FINALIZE CLOCK ── */
+async function finalizeClock(faceBase64,faceVideoURL){
   const now=new Date();
   const type=window._ckType;
-  // Load settings
   let limH=9,limM=0;
   try{
     const sc=await getDoc(doc(db,'config','settings'));
@@ -694,8 +765,16 @@ async function finalizeClock(faceBase64){
     }
   }catch{}
   const late=type==='in'&&(now.getHours()>limH||(now.getHours()===limH&&now.getMinutes()>limM));
-  const payload={ts:serverTimestamp(),tsMs:now.getTime(),faceBase64,faceOk:!!faceBase64,late,
-    userName:`${U.prenom} ${U.nom}`,dept:U.dept||''};
+  const payload={
+    ts:serverTimestamp(),
+    tsMs:now.getTime(),
+    faceBase64:faceBase64||'',
+    faceVideoURL:faceVideoURL||'',
+    faceOk:!!(faceBase64||faceVideoURL),
+    late,
+    userName:`${U.prenom} ${U.nom}`,
+    dept:U.dept||''
+  };
 
   const ref=doc(db,`clockins_${todayKey}`,U.uid);
   const existing=await getDoc(ref);
@@ -731,10 +810,7 @@ window.submitExp=async()=>{
 
 /* ── HISTORY ── */
 async function loadHistory(){
-  const q=query(collection(db,'clockins_all'),where('uid','==',U.uid),orderBy('tsMs','desc'),limit(30));
-  // Fallback: scan each daily collection
   const el=document.getElementById('hist-list');
-  // Simple approach: we stored in clockins_YYYYMMDD — load last 30 days
   const entries=[];
   const today=new Date();
   for(let i=0;i<30;i++){
@@ -789,7 +865,6 @@ window.publishPost=async()=>{
   btn.innerHTML='<div class="spinner" style="width:14px;height:14px"></div>';
   let mediaURL='',mediaType='';
   if(window._mFile){
-    // Show progress bar
     const prog=document.getElementById('upload-progress');
     const fill=document.getElementById('up-fill');
     const pct=document.getElementById('up-pct');
@@ -800,14 +875,9 @@ window.publishPost=async()=>{
       const j=await new Promise((resolve,reject)=>{
         const xhr=new XMLHttpRequest();
         xhr.upload.addEventListener('progress',e=>{
-          if(e.lengthComputable){
-            const p=Math.round(e.loaded/e.total*100);
-            fill.style.width=p+'%';pct.textContent=p+'%';
-          }
+          if(e.lengthComputable){const p=Math.round(e.loaded/e.total*100);fill.style.width=p+'%';pct.textContent=p+'%';}
         });
-        xhr.addEventListener('load',()=>{
-          try{resolve(JSON.parse(xhr.responseText));}catch(e){reject(e);}
-        });
+        xhr.addEventListener('load',()=>{try{resolve(JSON.parse(xhr.responseText));}catch(e){reject(e);}});
         xhr.addEventListener('error',reject);
         xhr.open('POST',ep);xhr.send(fd);
       });
@@ -820,8 +890,8 @@ window.publishPost=async()=>{
       btn.disabled=false;btn.innerHTML='Publier →';return;
     }
   }
-  if(mediaURL && mediaURL.includes('cloudinary.com')){
-    mediaURL = mediaURL.replace('/upload/', '/upload/f_auto,q_auto/');
+  if(mediaURL&&mediaURL.includes('cloudinary.com')){
+    mediaURL=mediaURL.replace('/upload/','/upload/f_auto,q_auto/');
   }
   await addDoc(collection(db,'posts'),{
     txt,mediaURL,mediaType,uid:U.uid,
@@ -841,27 +911,15 @@ function loadFeed(){
     if(snap.empty){feed.innerHTML='<div style="text-align:center;padding:38px;color:var(--muted)">Aucune publication. Soyez le premier !</div>';return;}
     feed.innerHTML=snap.docs.map(d=>{
       const p=d.data();const id=d.id;
-      const isOwner=p.uid===U.uid;
       const av=p.uPhoto?`<img src="${p.uPhoto}">`:`<span>${(p.uName||'?')[0]}</span>`;
       const tm=new Date(p.tsMs).toLocaleString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
-      const lc=p.likeCount||0;
-      const cc=p.commentCount||0;
-      const liked=p.likes&&p.likes[U.uid];
+      const lc=p.likeCount||0;const cc=p.commentCount||0;const liked=p.likes&&p.likes[U.uid];
       const media=p.mediaURL?(p.mediaType==='video'?`<video class="post-vid" src="${p.mediaURL}" crossorigin="anonymous" referrerpolicy="no-referrer" controls></video>`:`<img class="post-img" src="${p.mediaURL}" crossorigin="anonymous" referrerpolicy="no-referrer" onclick="window.open('${p.mediaURL}','_blank')">`): '';
-      const ownerMenu=isOwner?`
-        <div class="post-menu-wrap">
-          <button class="post-menu-btn" onclick="togglePostMenu('${id}',event)" title="Options">⋯</button>
-          <div class="post-menu-dd" id="pmenu-${id}">
-            <button class="pm-item" onclick="openEditModal('${id}')">✏️ Modifier</button>
-            <button class="pm-item danger" onclick="openDelModal('${id}')">🗑️ Supprimer</button>
-          </div>
-        </div>`:'';
       return`<div class="post" id="post-${id}">
         <div class="post-hd">
           <div class="p-av">${av}</div>
-          <div><div class="p-nm">${p.uName||'—'}</div><div class="p-tm">${p.uDept?p.uDept+' · ':''}${tm}${p.edited?' · <span style="color:var(--dim);font-style:italic">modifié</span>':''}</div></div>
+          <div><div class="p-nm">${p.uName||'—'}</div><div class="p-tm">${p.uDept?p.uDept+' · ':''}${tm}</div></div>
           <span class="p-dept">Enseignant</span>
-          ${ownerMenu}
         </div>
         ${p.txt?`<div class="post-txt">${p.txt}</div>`:''}
         ${media}
@@ -890,12 +948,10 @@ window.toggleComments=(postId)=>{
   wrap.classList.add('open');
   loadComments(postId);
 };
-
 function loadComments(postId){
   const list=document.getElementById('cmt-list-'+postId);
   if(!list)return;
   const q=query(collection(db,`posts/${postId}/comments`),orderBy('tsMs','asc'),limit(50));
-  // Use onSnapshot for real-time
   if(window._cmtUnsub&&window._cmtUnsub[postId])window._cmtUnsub[postId]();
   if(!window._cmtUnsub)window._cmtUnsub={};
   window._cmtUnsub[postId]=onSnapshot(q,snap=>{
@@ -905,113 +961,26 @@ function loadComments(postId){
       const c=d.data();
       const av=c.uPhoto?`<img src="${c.uPhoto}">`:`<span>${(c.uName||'?')[0]}</span>`;
       const tm=new Date(c.tsMs).toLocaleString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
-      return`<div class="cmt">
-        <div class="cmt-av">${av}</div>
-        <div class="cmt-body">
-          <div class="cmt-nm">${c.uName||'—'}</div>
-          <div class="cmt-txt">${c.txt||''}</div>
-          <div class="cmt-ts">${tm}</div>
-        </div>
-      </div>`;
+      return`<div class="cmt"><div class="cmt-av">${av}</div><div class="cmt-body"><div class="cmt-nm">${c.uName||'—'}</div><div class="cmt-txt">${c.txt||''}</div><div class="cmt-ts">${tm}</div></div></div>`;
     }).join('');
   });
 }
-
 window.sendComment=async(postId)=>{
   const inp=document.getElementById('cmt-inp-'+postId);
-  const txt=(inp?.value||'').trim();
-  if(!txt)return;
-  inp.value='';
-  inp.disabled=true;
+  const txt=(inp?.value||'').trim();if(!txt)return;
+  inp.value='';inp.disabled=true;
   try{
-    await addDoc(collection(db,`posts/${postId}/comments`),{
-      txt,uid:U.uid,uName:`${U.prenom} ${U.nom}`,uPhoto:U.photoURL||'',
-      ts:serverTimestamp(),tsMs:Date.now()
-    });
+    await addDoc(collection(db,`posts/${postId}/comments`),{txt,uid:U.uid,uName:`${U.prenom} ${U.nom}`,uPhoto:U.photoURL||'',ts:serverTimestamp(),tsMs:Date.now()});
     await updateDoc(doc(db,'posts',postId),{commentCount:increment(1)});
   }catch(e){toast('Erreur commentaire','err');}
   inp.disabled=false;inp.focus();
 };
-
-/* ── POST MENU ── */
-window.togglePostMenu=(postId,e)=>{
-  e.stopPropagation();
-  const dd=document.getElementById('pmenu-'+postId);
-  const isOpen=dd.classList.contains('open');
-  // Close all other menus first
-  document.querySelectorAll('.post-menu-dd.open').forEach(el=>el.classList.remove('open'));
-  if(!isOpen)dd.classList.add('open');
-};
-document.addEventListener('click',()=>{
-  document.querySelectorAll('.post-menu-dd.open').forEach(el=>el.classList.remove('open'));
-});
-
-/* ── EDIT POST ── */
-window._editPostId=null;
-window.openEditModal=(postId)=>{
-  document.querySelectorAll('.post-menu-dd.open').forEach(el=>el.classList.remove('open'));
-  window._editPostId=postId;
-  // Get current text from the rendered post
-  const postEl=document.getElementById('post-'+postId);
-  const txtEl=postEl?.querySelector('.post-txt');
-  document.getElementById('edit-ta').value=txtEl?txtEl.textContent:'';
-  document.getElementById('edit-ov').classList.add('open');
-  setTimeout(()=>document.getElementById('edit-ta').focus(),200);
-};
-window.closeEditModal=()=>{
-  document.getElementById('edit-ov').classList.remove('open');
-  window._editPostId=null;
-};
-window.saveEditPost=async()=>{
-  const id=window._editPostId;if(!id)return;
-  const txt=document.getElementById('edit-ta').value.trim();
-  if(!txt){toast('Le texte ne peut pas être vide.','err');return;}
-  const btn=document.getElementById('edit-save-btn');
-  btn.disabled=true;btn.textContent='Enregistrement...';
-  try{
-    await updateDoc(doc(db,'posts',id),{txt,edited:true,editedAt:serverTimestamp()});
-    closeEditModal();
-    toast('Publication modifiée !','ok');
-  }catch(e){toast('Erreur modification','err');}
-  btn.disabled=false;btn.textContent='Enregistrer';
-};
-
-/* ── DELETE POST ── */
-window._delPostId=null;
-window.openDelModal=(postId)=>{
-  document.querySelectorAll('.post-menu-dd.open').forEach(el=>el.classList.remove('open'));
-  window._delPostId=postId;
-  document.getElementById('del-ov').classList.add('open');
-};
-window.closeDelModal=()=>{
-  document.getElementById('del-ov').classList.remove('open');
-  window._delPostId=null;
-};
-window.confirmDeletePost=async()=>{
-  const id=window._delPostId;if(!id)return;
-  const btn=document.getElementById('del-confirm-btn');
-  btn.disabled=true;btn.textContent='Suppression...';
-  try{
-    await deleteDoc(doc(db,'posts',id));
-    closeDelModal();
-    toast('Publication supprimée.','ok');
-  }catch(e){toast('Erreur suppression','err');}
-  btn.disabled=false;btn.textContent='Supprimer';
-};
-
 window.toggleLike=async(id,isLiked)=>{
   const ref=doc(db,'posts',id);
-  if(isLiked){
-    const likes={...{}};likes[U.uid]=false;
-    await updateDoc(ref,{[`likes.${U.uid}`]:false,likeCount:increment(-1)});
-  }else{
-    await updateDoc(ref,{[`likes.${U.uid}`]:true,likeCount:increment(1)});
-  }
+  if(isLiked){await updateDoc(ref,{[`likes.${U.uid}`]:false,likeCount:increment(-1)});}
+  else{await updateDoc(ref,{[`likes.${U.uid}`]:true,likeCount:increment(1)});}
 };
-window.sharePost=(author)=>{
-  navigator.clipboard.writeText(location.href).then(()=>toast('Lien copié !','ok'));
-};
-
+window.sharePost=()=>{navigator.clipboard.writeText(location.href).then(()=>toast('Lien copié !','ok'));};
 window.doLogout=()=>{sessionStorage.removeItem('uttloko_user');location.href='index.html';};
 
 function toast(msg,type){const d=document.createElement('div');d.className='toast t-'+type;d.textContent=msg;document.getElementById('toasts').appendChild(d);setTimeout(()=>d.remove(),4000);}
@@ -1019,7 +988,6 @@ window.toast=toast;
 
 /* Init */
 loadFeed();
-// Load history lazily
 document.querySelectorAll('.tb').forEach(t=>t.addEventListener('click',()=>{
   if(document.getElementById('pg-history').classList.contains('on'))loadHistory();
 }));
