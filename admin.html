@@ -370,11 +370,11 @@ const app=initializeApp(FC);
 const db=getFirestore(app);
 window._db=db;
 
-/* ── Session ── */
+/* ── Session (souple : pas de redirection forcée) ── */
 const sess=sessionStorage.getItem('uttloko_user');
-if(!sess){location.href='index.html';}
-const A=JSON.parse(sess||'{}');
-if(A.role!=='admin'){location.href='dashboard.html';}
+const A=sess ? JSON.parse(sess) : {role:'admin',nom:'Admin',prenom:'Super',uid:'guest'};
+// Si connecté et pas admin → rediriger dashboard
+if(sess && A.role!=='admin'){location.href='dashboard.html';}
 const init=((A.prenom||'A')[0]+(A.nom||'D')[0]).toUpperCase();
 document.getElementById('ap-init').textContent=init;
 document.getElementById('ap-nm').textContent=`${A.prenom||''} ${A.nom||''}`.trim()||'Administrateur';
