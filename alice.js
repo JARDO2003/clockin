@@ -143,10 +143,8 @@ function prevPhoto(e){
 }
 function toast(msg,type){const d=document.createElement('div');d.className='toast t-'+type;d.textContent=msg;document.getElementById('toasts').appendChild(d);setTimeout(()=>d.remove(),4000);}
 window.toast=toast;
-</script>
 
-<!-- ═══ FIRESTORE LOGIC ═══ -->
-<script type="module">
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
 import {
   getFirestore, collection, doc, setDoc, getDoc, getDocs,
