@@ -116,6 +116,38 @@ function setRing(state) {
   document.getElementById('r-gl').style.stroke = v.c;
 }
 
+
+/* ── DELETE POST ── */
+window.deletePost = async (postId, postUid) => {
+  // Vérification : l'utilisateur ne peut supprimer que ses propres posts
+  if (postUid !== U.uid) {
+    toast('Vous ne pouvez supprimer que vos propres publications', 'err');
+    return;
+  }
+  
+  // Confirmation avant suppression
+  if (!confirm('Êtes-vous sûr de vouloir supprimer cette publication définitivement ?\n\nCette action est irréversible.')) {
+    return;
+  }
+  
+  try {
+    // Supprimer le document principal
+    await deleteDoc(doc(db, 'posts', postId));
+    
+    // Supprimer tous les commentaires associés (sous-collection)
+    const commentsQuery = query(collection(db, `posts/${postId}/comments`));
+    const commentsSnap = await getDocs(commentsQuery);
+    const deletePromises = commentsSnap.docs.map(commentDoc => 
+      deleteDoc(doc(db, `posts/${postId}/comments`, commentDoc.id))
+    );
+    await Promise.all(deletePromises);
+    
+    toast('Publication supprimée définitivement', 'ok');
+  } catch (e) {
+    console.error('Erreur suppression:', e);
+    toast('Erreur lors de la suppression', 'err');
+  }
+};
 /* ── CLOCK START ── */
 window.startClock = type => {
   if (!window._geoOk) { toast('Vous devez être dans l\'établissement pour pointer !', 'err'); return; }
@@ -437,13 +469,30 @@ function loadFeed() {
   const q = query(collection(db, 'posts'), orderBy('tsMs', 'desc'), limit(30));
   onSnapshot(q, snap => {
     const feed = document.getElementById('feed');
-    if (snap.empty) { feed.innerHTML = '<div style="text-align:center;padding:38px;color:var(--muted)">Aucune publication. Soyez le premier !</div>'; return; }
+    if (snap.empty) { 
+      feed.innerHTML = '<div style="text-align:center;padding:38px;color:var(--muted)">Aucune publication. Soyez le premier !</div>'; 
+      return; 
+    }
     feed.innerHTML = snap.docs.map(d => {
-      const p = d.data(); const id = d.id;
+      const p = d.data(); 
+      const id = d.id;
+      const isOwner = p.uid === U.uid;
+      
       const av = p.uPhoto ? `<img src="${p.uPhoto}">` : `<span>${(p.uName || '?')[0]}</span>`;
       const tm = new Date(p.tsMs).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
-      const lc = p.likeCount || 0; const cc = p.commentCount || 0; const liked = p.likes && p.likes[U.uid];
-      const media = p.mediaURL ? (p.mediaType === 'video' ? `<video class="post-vid" src="${p.mediaURL}" crossorigin="anonymous" referrerpolicy="no-referrer" controls></video>` : `<img class="post-img" src="${p.mediaURL}" crossorigin="anonymous" referrerpolicy="no-referrer" onclick="window.open('${p.mediaURL}','_blank')">`) : '';
+      const lc = p.likeCount || 0; 
+      const cc = p.commentCount || 0; 
+      const liked = p.likes && p.likes[U.uid];
+      
+      const media = p.mediaURL ? (p.mediaType === 'video' ? 
+        `<video class="post-vid" src="${p.mediaURL}" crossorigin="anonymous" referrerpolicy="no-referrer" controls></video>` : 
+        `<img class="post-img" src="${p.mediaURL}" crossorigin="anonymous" referrerpolicy="no-referrer" onclick="window.open('${p.mediaURL}','_blank')">`
+      ) : '';
+      
+      // Bouton supprimer uniquement pour le propriétaire du post
+      const deleteBtn = isOwner ? 
+        `<button class="act-b" onclick="deletePost('${id}', '${p.uid}')" style="color:#fca5a5">🗑️ Supprimer</button>` : '';
+      
       return `<div class="post" id="post-${id}">
         <div class="post-hd">
           <div class="p-av">${av}</div>
@@ -456,6 +505,7 @@ function loadFeed() {
           <button class="act-b ${liked ? 'liked' : ''}" onclick="toggleLike('${id}',${!!liked})">❤️ ${lc} J'aime</button>
           <button class="act-b" onclick="toggleComments('${id}')">💬 ${cc} Commenter</button>
           <button class="act-b" onclick="sharePost('${p.uName || ''}')">🔗 Partager</button>
+          ${deleteBtn}
         </div>
         <div class="comments-wrap" id="cmts-${id}">
           <div class="comment-list" id="cmt-list-${id}"><div class="no-cmts">Chargement...</div></div>
