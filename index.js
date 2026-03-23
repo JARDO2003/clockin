@@ -498,9 +498,7 @@ loadFeed();
 document.querySelectorAll('.tb').forEach(t=>t.addEventListener('click',()=>{
   if(document.getElementById('pg-history').classList.contains('on'))loadHistory();
 }));
-</script>
 
-<script>
 function tick(){
   const now=new Date();
   document.getElementById('live-h').textContent=now.toLocaleTimeString('fr-FR');
