@@ -144,3 +144,93 @@ function prevPhoto(e){
 }
 function toast(msg,type){const d=document.createElement('div');d.className='toast t-'+type;d.textContent=msg;document.getElementById('toasts').appendChild(d);setTimeout(()=>d.remove(),4000);}
 window.toast=toast;
+
+
+// Enregistrement du Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(registration => {
+        console.log('[PWA] SW enregistré:', registration.scope);
+        
+        // Mise à jour du SW
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // Nouvelle version disponible
+              if (confirm('Une nouvelle version d\'UTT LOKO est disponible. Recharger ?')) {
+                location.reload();
+              }
+            }
+          });
+        });
+      })
+      .catch(err => console.error('[PWA] Erreur SW:', err));
+  });
+}
+
+// Gestion de l'installation PWA
+let deferredPrompt;
+const installBanner = document.getElementById('pwa-install');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  
+  // Afficher le banner après 3 secondes
+  setTimeout(() => {
+    if (!localStorage.getItem('pwa-dismissed')) {
+      installBanner.style.display = 'block';
+    }
+  }, 3000);
+});
+
+// Cacher le banner si déjà installé
+window.addEventListener('appinstalled', () => {
+  console.log('[PWA] App installée');
+  installBanner.style.display = 'none';
+  deferredPrompt = null;
+  localStorage.setItem('pwa-installed', 'true');
+});
+
+function installPWA() {
+  if (!deferredPrompt) return;
+  
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then((choiceResult) => {
+    if (choiceResult.outcome === 'accepted') {
+      console.log('[PWA] Installation acceptée');
+      localStorage.setItem('pwa-installed', 'true');
+    } else {
+      console.log('[PWA] Installation refusée');
+    }
+    installBanner.style.display = 'none';
+    deferredPrompt = null;
+  });
+}
+
+function dismissPWA() {
+  installBanner.style.display = 'none';
+  localStorage.setItem('pwa-dismissed', 'true');
+  // Réafficher dans 7 jours
+  setTimeout(() => {
+    localStorage.removeItem('pwa-dismissed');
+  }, 7 * 24 * 60 * 60 * 1000);
+}
+
+// Détection mode standalone (app installée)
+if (window.matchMedia('(display-mode: standalone)').matches || 
+    window.navigator.standalone === true) {
+  console.log('[PWA] Mode standalone actif');
+  document.body.classList.add('pwa-standalone');
+}
+
+// Gestion du offline/online
+window.addEventListener('online', () => {
+  toast('Connexion rétablie !', 'ok');
+});
+
+window.addEventListener('offline', () => {
+  toast('Mode hors ligne. Certaines fonctionnalités peuvent être limitées.', 'info');
+});
