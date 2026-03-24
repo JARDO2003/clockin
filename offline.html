@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hors ligne — UTT LOKO</title>
+<style>
+:root{--bg:#080e0a;--lime:#a8e63d;--text:#e8f5ec;--muted:#7aac88;--card:#1b2b21}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
+.offline-icon{width:120px;height:120px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:3rem;margin-bottom:24px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+h1{font-size:1.5rem;margin-bottom:12px;color:var(--lime)}
+p{color:var(--muted);line-height:1.6;max-width:300px;margin-bottom:24px}
+.retry-btn{padding:12px 32px;border-radius:10px;border:1px solid var(--lime);background:transparent;color:var(--lime);font-size:.9rem;cursor:pointer;transition:all .2s}
+.retry-btn:hover{background:var(--lime);color:var(--bg)}
+</style>
+</head>
+<body>
+  <div class="offline-icon">📡</div>
+  <h1>Vous êtes hors ligne</h1>
+  <p>Impossible de se connecter à UTT LOKO. Vérifiez votre connexion internet et réessayez.</p>
+  <button class="retry-btn" onclick="location.reload()">🔄 Réessayer</button>
+  <script>
+    // Vérifier si la connexion revient
+    window.addEventListener('online', () => {
+      location.href = '/index.html';
+    });
+  </script>
+</body>
+</html>
