@@ -1,40 +1,79 @@
-const CACHE_NAME = 'utt-loko-v1';
 const STATIC_CACHE = 'utt-loko-static-v1';
 const DYNAMIC_CACHE = 'utt-loko-dynamic-v1';
+const CACHE_VERSION = 'v1.2';
 
-// Assets à pré-cacher
+// Assets à pré-cacher (vérifiez que ces fichiers existent !)
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/dashboard.html',
-  '/styles.css',
-  '/dashboard.css',
-  '/script.js',
-  '/dashboard.js',
-  '/firebase-index.js',
-  '/manifest.json',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png',
-  '/offline.html'
+  './',
+  './index.html',
+  './dashboard.html',
+  './styles.css',
+  './dashboard.css',
+  './script.js',
+  './dashboard.js',
+  './firebase-index.js',
+  './manifest.json',
+  './offline.html'
+];
+
+// Assets optionnels (erreurs silencieuses si manquants)
+const OPTIONAL_ASSETS = [
+  './icons/icon-192x192.png',
+  './icons/icon-512x512.png'
 ];
 
 // Installation du Service Worker
 self.addEventListener('install', (event) => {
   console.log('[SW] Installation...');
+  
   event.waitUntil(
     caches.open(STATIC_CACHE)
       .then(cache => {
-        console.log('[SW] Mise en cache des assets statiques');
-        return cache.addAll(STATIC_ASSETS);
+        console.log('[SW] Mise en cache des assets essentiels...');
+        
+        // Cache les assets essentiels un par un pour éviter l'échec total
+        const essentialPromises = STATIC_ASSETS.map(url => 
+          fetch(url, { cache: 'no-store' })
+            .then(response => {
+              if (!response || response.status !== 200) {
+                throw new Error(`Échec: ${url} (${response?.status})`);
+              }
+              return cache.put(url, response);
+            })
+            .catch(err => {
+              console.warn(`[SW] Asset manquant: ${url}`, err.message);
+              // Ne pas bloquer l'installation pour un fichier manquant
+              return Promise.resolve();
+            })
+        );
+        
+        return Promise.all(essentialPromises);
       })
-      .catch(err => console.error('[SW] Erreur cache:', err))
+      .then(() => {
+        // Essayer de cacher les assets optionnels
+        return caches.open(STATIC_CACHE).then(cache => {
+          const optionalPromises = OPTIONAL_ASSETS.map(url => 
+            fetch(url).then(r => r.ok ? cache.put(url, r) : null).catch(() => null)
+          );
+          return Promise.all(optionalPromises);
+        });
+      })
+      .then(() => {
+        console.log('[SW] Installation terminée');
+        self.skipWaiting();
+      })
+      .catch(err => {
+        console.error('[SW] Erreur critique:', err);
+        // Force l'installation même en cas d'erreur
+        self.skipWaiting();
+      })
   );
-  self.skipWaiting();
 });
 
-// Activation et nettoyage des anciens caches
+// Activation
 self.addEventListener('activate', (event) => {
   console.log('[SW] Activation...');
+  
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
@@ -45,12 +84,14 @@ self.addEventListener('activate', (event) => {
             return caches.delete(name);
           })
       );
+    }).then(() => {
+      console.log('[SW] Prêt à contrôler les clients');
+      return self.clients.claim();
     })
   );
-  self.clients.claim();
 });
 
-// Stratégie de fetch : Cache First, puis Network
+// Stratégie de fetch optimisée
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -58,130 +99,82 @@ self.addEventListener('fetch', (event) => {
   // Ignorer les requêtes non-GET
   if (request.method !== 'GET') return;
 
-  // Ignorer les requêtes Firebase (Firestore, Auth, etc.)
+  // Ignorer les schémas non-http(s)
+  if (!url.protocol.startsWith('http')) return;
+
+  // Ignorer Firebase et services externes
   if (url.hostname.includes('firebase') || 
       url.hostname.includes('googleapis') ||
-      url.hostname.includes('gstatic')) {
+      url.hostname.includes('gstatic') ||
+      url.hostname.includes('cloudinary')) {
     return;
   }
 
-  // Ignorer les requêtes Cloudinary
-  if (url.hostname.includes('cloudinary')) {
-    return;
-  }
-
-  // Stratégie spécifique pour les pages HTML
+  // Stratégie: Network First pour les HTML, Cache First pour le reste
   if (request.destination === 'document') {
-    event.respondWith(
-      caches.match(request)
-        .then(response => {
-          // Retourner le cache ou fetcher
-          const fetchPromise = fetch(request)
-            .then(networkResponse => {
-              // Mettre à jour le cache
-              if (networkResponse && networkResponse.status === 200) {
-                const clone = networkResponse.clone();
-                caches.open(DYNAMIC_CACHE).then(cache => {
-                  cache.put(request, clone);
-                });
-              }
-              return networkResponse;
-            })
-            .catch(() => {
-              // Si offline, retourner le cache ou la page offline
-              return response || caches.match('/offline.html');
-            });
-
-          return response || fetchPromise;
-        })
-    );
-    return;
-  }
-
-  // Stratégie Cache First pour les assets statiques
-  event.respondWith(
-    caches.match(request)
-      .then(response => {
-        if (response) return response;
-
-        return fetch(request)
-          .then(networkResponse => {
-            if (!networkResponse || networkResponse.status !== 200) {
-              return networkResponse;
-            }
-
-            // Mettre en cache les nouvelles ressources
-            const clone = networkResponse.clone();
-            caches.open(DYNAMIC_CACHE).then(cache => {
-              cache.put(request, clone);
-            });
-
-            return networkResponse;
-          })
-          .catch(() => {
-            // Fallback pour les images
-            if (request.destination === 'image') {
-              return new Response(
-                `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
-                  <rect fill="#1b2b21" width="100" height="100"/>
-                  <text fill="#7aac88" x="50%" y="50%" text-anchor="middle" font-size="14">Offline</text>
-                </svg>`,
-                { headers: { 'Content-Type': 'image/svg+xml' } }
-              );
-            }
-          });
-      })
-  );
-});
-
-// Gestion des notifications push (optionnel)
-self.addEventListener('push', (event) => {
-  if (!event.data) return;
-  
-  const data = event.data.json();
-  const options = {
-    body: data.body || 'Nouvelle notification UTT LOKO',
-    icon: '/icons/icon-192x192.png',
-    badge: '/icons/badge-72x72.png',
-    tag: data.tag || 'utt-loko',
-    requireInteraction: true,
-    actions: [
-      {
-        action: 'open',
-        title: 'Ouvrir'
-      },
-      {
-        action: 'close',
-        title: 'Fermer'
-      }
-    ]
-  };
-
-  event.waitUntil(
-    self.registration.showNotification(data.title || 'UTT LOKO', options)
-  );
-});
-
-// Gestion des clics sur notifications
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-  
-  if (event.action === 'open' || !event.action) {
-    event.waitUntil(
-      clients.openWindow('/dashboard.html')
-    );
+    event.respondWith(networkFirst(request));
+  } else if (['style', 'script', 'image', 'font'].includes(request.destination)) {
+    event.respondWith(cacheFirst(request));
+  } else {
+    event.respondWith(networkFirst(request));
   }
 });
 
-// Sync en arrière-plan pour les pointages hors-ligne
-self.addEventListener('sync', (event) => {
-  if (event.tag === 'sync-clockins') {
-    event.waitUntil(syncPendingClockins());
+// Network First avec fallback cache
+async function networkFirst(request) {
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse && networkResponse.ok) {
+      const cache = await caches.open(DYNAMIC_CACHE);
+      cache.put(request, networkResponse.clone());
+      return networkResponse;
+    }
+    throw new Error('Network response not ok');
+  } catch (err) {
+    console.log('[SW] Fallback cache pour:', request.url);
+    const cached = await caches.match(request);
+    if (cached) return cached;
+    
+    // Si c'est une page HTML, retourner offline.html
+    if (request.destination === 'document') {
+      return caches.match('./offline.html') || new Response('Offline', { status: 503 });
+    }
+    
+    return new Response('Ressource non disponible', { status: 503 });
   }
-});
-
-async function syncPendingClockins() {
-  // Récupérer les pointages en attente depuis IndexedDB
-  // et les envoyer quand la connexion revient
-  console.log('[SW] Sync des pointages en attente...');
 }
+
+// Cache First avec fallback network
+async function cacheFirst(request) {
+  const cached = await caches.match(request);
+  if (cached) return cached;
+  
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse && networkResponse.ok) {
+      const cache = await caches.open(DYNAMIC_CACHE);
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch (err) {
+    console.log('[SW] Asset manquant:', request.url);
+    // Retourner une réponse vide pour les images
+    if (request.destination === 'image') {
+      return new Response(
+        `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
+          <rect fill="#1b2b21" width="100" height="100"/>
+          <text fill="#7aac88" x="50" y="50" text-anchor="middle" font-size="12">Offline</text>
+        </svg>`,
+        { headers: { 'Content-Type': 'image/svg+xml' } }
+      );
+    }
+    throw err;
+  }
+}
+
+// Gestion des messages du client
+self.addEventListener('message', (event) => {
+  if (event.data === 'skipWaiting') {
+    self.skipWaiting();
+  }
+});
