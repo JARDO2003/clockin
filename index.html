@@ -206,6 +206,21 @@
 <link rel="apple-touch-startup-image" href="/splash/splash-1242x2208.png" media="(device-width: 621px) and (device-height: 1104px) and (-webkit-device-pixel-ratio: 3)">
 <link rel="apple-touch-startup-image" href="/splash/splash-1125x2436.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)">
 
+  <!-- PWA Install Prompt -->
+<div id="pwa-install" style="display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9999;background:var(--card);border:1px solid var(--lime);border-radius:16px;padding:16px 20px;box-shadow:0 10px 40px rgba(0,0,0,.5);max-width:90%;width:360px;">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+    <div style="width:48px;height:48px;border-radius:12px;background:var(--lime);display:flex;align-items:center;justify-content:center;font-size:1.5rem;">🎓</div>
+    <div>
+      <div style="font-weight:700;font-size:.95rem;">Installer UTT LOKO</div>
+      <div style="font-size:.75rem;color:var(--muted);">Accès rapide depuis l'écran d'accueil</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button onclick="dismissPWA()" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--dim);background:transparent;color:var(--muted);font-size:.8rem;cursor:pointer;">Plus tard</button>
+    <button onclick="installPWA()" style="flex:1;padding:10px;border-radius:10px;border:none;background:var(--lime);color:var(--bg);font-size:.8rem;font-weight:600;cursor:pointer;">Installer</button>
+  </div>
+</div>
+
 <script src="script.js"></script>
 <script type="module" src="firebase-logic.js"></script>
 
