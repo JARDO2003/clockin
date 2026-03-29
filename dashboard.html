@@ -929,7 +929,7 @@ function openCam() {
   fStep(1);
   document.getElementById('face-st').textContent = 'Démarrage caméra...';
   document.getElementById('btn-cap').disabled = true;
-  document.getElementById('btn-cap').textContent = '🎥 Démarrer l\'enregistrement';
+  document.getElementById('btn-cap').textContent = ' Démarrer la vérification';
   document.getElementById('btn-cap').className = 'btn-cap';
   navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }, audio: false })
     .then(s => {
