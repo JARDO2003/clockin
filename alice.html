@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MarcioStudio — Plateforme Entreprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #050810;
+  --bg2: #080c1a;
+  --bg3: #0d1226;
+  --card: #0f1830;
+  --card2: #141e3a;
+  --gold: #e8b84b;
+  --gold2: #f5d06e;
+  --gold3: rgba(232,184,75,.12);
+  --gold4: rgba(232,184,75,.06);
+  --blue: #4f8ef7;
+  --blue2: #7aaeff;
+  --violet: #8b5cf6;
+  --text: #eef2ff;
+  --muted: #7c8db5;
+  --dim: #2e3d6b;
+  --red: #ef4444;
+  --green: #22c55e;
+  --r: 16px;
+  --rr: 24px;
+}
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box }
+html { scroll-behavior: smooth }
+body {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── AMBIENT BACKGROUND ── */
+.ambient {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 20% 0%, rgba(79,142,247,.08) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 80% 100%, rgba(139,92,246,.06) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 30% at 50% 50%, rgba(232,184,75,.04) 0%, transparent 60%);
+}
+.grid-overlay {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.025;
+  background-image: linear-gradient(var(--dim) 1px, transparent 1px),
+                    linear-gradient(90deg, var(--dim) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp { from { opacity:0; transform:translateY(24px) } to { opacity:1; transform:none } }
+@keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+@keyframes spin { to { transform: rotate(360deg) } }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+@keyframes shimmer {
+  0% { background-position: -200% center }
+  100% { background-position: 200% center }
+}
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 0.6 }
+  100% { transform: scale(1.8); opacity: 0 }
+}
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px)} 40%,80%{transform:translateX(8px)} }
+@keyframes slideIn { from{opacity:0;transform:translateX(30px)} to{opacity:1;transform:none} }
+@keyframes glow-pulse {
+  0%,100% { box-shadow: 0 0 20px rgba(232,184,75,.2) }
+  50% { box-shadow: 0 0 40px rgba(232,184,75,.5) }
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 70px;
+  display: flex; align-items: center; justify-content: space-between; padding: 0 48px;
+  background: rgba(5,8,16,.85); backdrop-filter: blur(28px) saturate(180%);
+  border-bottom: 1px solid rgba(232,184,75,.08);
+}
+.nav-brand { display:flex; align-items:center; gap:12px; text-decoration:none }
+.brand-mark {
+  width: 40px; height: 40px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Clash Display', sans-serif; font-weight: 700;
+  font-size: 1.05rem; color: var(--bg);
+  box-shadow: 0 0 24px rgba(232,184,75,.3);
+}
+.brand-name {
+  font-family: 'Clash Display', sans-serif; font-weight: 600; font-size: 1.2rem;
+  letter-spacing: -.3px;
+}
+.brand-name span { color: var(--gold) }
+.nav-center { display: flex; align-items: center; gap: 4px }
+.nav-link {
+  padding: 8px 18px; border-radius: 10px; color: var(--muted);
+  font-size: .875rem; font-weight: 500; cursor: pointer;
+  transition: all .2s; text-decoration: none; background: transparent; border: none;
+}
+.nav-link:hover { color: var(--text); background: rgba(255,255,255,.05) }
+.nav-actions { display: flex; gap: 10px; align-items: center }
+.btn-outline {
+  padding: 9px 22px; border-radius: 11px;
+  border: 1px solid rgba(232,184,75,.25); background: transparent;
+  color: var(--gold); font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: .875rem; font-weight: 600; cursor: pointer; transition: all .22s;
+}
+.btn-outline:hover { border-color: var(--gold); background: var(--gold3) }
+.btn-primary {
+  padding: 9px 22px; border-radius: 11px; border: none;
+  background: linear-gradient(135deg, var(--gold), #d4a432);
+  color: var(--bg); font-family: 'Clash Display', sans-serif;
+  font-size: .875rem; font-weight: 600; cursor: pointer; transition: all .22s;
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(232,184,75,.3) }
+
+/* ── HERO ── */
+.hero {
+  position: relative; z-index: 1; padding: 200px 48px 120px;
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 28px;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 10px; padding: 8px 20px;
+  border-radius: 100px; border: 1px solid rgba(232,184,75,.3);
+  background: rgba(232,184,75,.07); backdrop-filter: blur(10px);
+  font-size: .72rem; font-weight: 700; color: var(--gold); letter-spacing: 1.2px;
+  text-transform: uppercase; animation: fadeUp .5s ease both;
+}
+.badge-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--gold);
+  animation: blink 2.4s ease infinite; position: relative;
+}
+.badge-dot::after {
+  content: ''; position: absolute; inset: -3px; border-radius: 50%;
+  background: var(--gold); animation: pulse-ring 2.4s ease infinite;
+}
+.hero-h1 {
+  font-family: 'Clash Display', sans-serif; font-size: clamp(3rem, 6vw, 5.2rem);
+  font-weight: 700; line-height: 1.02; letter-spacing: -2px; max-width: 860px;
+  animation: fadeUp .65s .1s ease both;
+}
+.hero-h1 .shine {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 50%, var(--blue2) 100%);
+  background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; animation: shimmer 4s linear infinite;
+}
+.hero-sub {
+  font-size: 1.1rem; color: var(--muted); max-width: 560px; line-height: 1.85;
+  font-weight: 400; animation: fadeUp .65s .2s ease both;
+}
+.hero-actions {
+  display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
+  animation: fadeUp .65s .3s ease both;
+}
+.cta-main {
+  padding: 16px 42px; border-radius: 14px; border: none;
+  background: linear-gradient(135deg, var(--gold) 0%, #d4a432 100%);
+  color: var(--bg); font-family: 'Clash Display', sans-serif;
+  font-size: 1rem; font-weight: 700; cursor: pointer; transition: all .28s;
+  display: flex; align-items: center; gap: 10px; position: relative; overflow: hidden;
+}
+.cta-main::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, transparent, rgba(255,255,255,.15), transparent);
+  transform: translateX(-100%); transition: transform .5s;
+}
+.cta-main:hover::before { transform: translateX(100%) }
+.cta-main:hover { transform: translateY(-3px); box-shadow: 0 16px 48px rgba(232,184,75,.35) }
+.cta-secondary {
+  padding: 16px 42px; border-radius: 14px;
+  border: 1px solid rgba(79,142,247,.3); background: rgba(79,142,247,.07);
+  color: var(--blue2); font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 1rem; font-weight: 600; cursor: pointer; transition: all .25s;
+}
+.cta-secondary:hover { border-color: var(--blue2); background: rgba(79,142,247,.14) }
+
+/* ── STATS FLOATING ── */
+.stats-wrap {
+  position: relative; z-index: 1; max-width: 820px; margin: 0 auto 100px;
+  animation: fadeUp .65s .4s ease both;
+}
+.stats-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px;
+  background: linear-gradient(135deg, rgba(232,184,75,.08), rgba(79,142,247,.05));
+  border: 1px solid rgba(232,184,75,.1); border-radius: var(--rr); overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+.s-cell {
+  padding: 28px 20px; text-align: center; background: rgba(8,12,26,.7);
+  transition: background .2s; cursor: default;
+}
+.s-cell:hover { background: rgba(232,184,75,.05) }
+.s-val {
+  font-family: 'Clash Display', sans-serif; font-size: 2rem; font-weight: 700;
+  color: var(--gold); display: block; margin-bottom: 5px;
+  letter-spacing: -1px;
+}
+.s-key {
+  font-size: .68rem; color: var(--dim); font-weight: 600;
+  text-transform: uppercase; letter-spacing: .8px;
+}
+
+/* ── FEATURES ── */
+.features {
+  position: relative; z-index: 1; padding: 0 48px 120px; max-width: 1200px; margin: 0 auto;
+}
+.section-label {
+  display: inline-flex; align-items: center; gap: 8px; padding: 5px 14px;
+  border-radius: 7px; background: var(--gold3); border: 1px solid rgba(232,184,75,.2);
+  color: var(--gold); font-size: .68rem; font-weight: 700;
+  letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 16px;
+}
+.section-title {
+  font-family: 'Clash Display', sans-serif; font-size: clamp(1.8rem, 3.2vw, 2.8rem);
+  font-weight: 700; letter-spacing: -1px; margin-bottom: 56px; max-width: 500px;
+}
+.section-title span { color: var(--gold) }
+.feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px }
+.feat-card {
+  background: var(--card); border: 1px solid rgba(232,184,75,.07);
+  border-radius: var(--rr); padding: 34px; transition: all .32s;
+  position: relative; overflow: hidden; cursor: default;
+}
+.feat-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  transform: scaleX(0); transition: transform .4s; transform-origin: left;
+}
+.feat-card:hover {
+  border-color: rgba(232,184,75,.22); transform: translateY(-4px);
+  box-shadow: 0 24px 64px rgba(0,0,0,.4), 0 0 0 1px rgba(232,184,75,.06);
+}
+.feat-card:hover::before { transform: scaleX(1) }
+.feat-icon {
+  width: 52px; height: 52px; border-radius: 15px;
+  background: linear-gradient(135deg, var(--gold3), rgba(79,142,247,.1));
+  border: 1px solid rgba(232,184,75,.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; margin-bottom: 20px; transition: all .3s;
+}
+.feat-card:hover .feat-icon { animation: float 2s ease infinite }
+.feat-title {
+  font-family: 'Clash Display', sans-serif; font-size: 1.05rem;
+  font-weight: 600; margin-bottom: 10px;
+}
+.feat-desc { font-size: .85rem; color: var(--muted); line-height: 1.7 }
+
+/* ── FOOTER ── */
+footer {
+  position: relative; z-index: 1; padding: 32px 48px;
+  border-top: 1px solid rgba(232,184,75,.06);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px;
+}
+.footer-brand {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Clash Display', sans-serif; font-weight: 600; font-size: .95rem;
+}
+.footer-right { font-size: .78rem; color: var(--dim) }
+
+/* ── MODAL ── */
+.overlay {
+  position: fixed; inset: 0; z-index: 600;
+  background: rgba(0,0,0,.85); backdrop-filter: blur(20px) saturate(160%);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+  opacity: 0; pointer-events: none; transition: opacity .3s;
+}
+.overlay.open { opacity: 1; pointer-events: all }
+.modal {
+  background: var(--bg2); border: 1px solid rgba(232,184,75,.12);
+  border-radius: 28px; width: 100%; max-width: 480px; max-height: 92vh;
+  overflow-y: auto; padding: 42px; position: relative;
+  transform: scale(.93) translateY(20px); transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+  scrollbar-width: none;
+}
+.modal::-webkit-scrollbar { display: none }
+.overlay.open .modal { transform: scale(1) translateY(0) }
+.modal-close {
+  position: absolute; top: 16px; right: 16px; width: 36px; height: 36px;
+  border-radius: 10px; background: rgba(255,255,255,.05);
+  border: none; cursor: pointer; color: var(--muted); font-size: 1rem;
+  display: flex; align-items: center; justify-content: center; transition: all .2s;
+}
+.modal-close:hover { background: rgba(239,68,68,.15); color: var(--red) }
+.modal-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 26px }
+.modal-logo .brand-mark { width: 34px; height: 34px; font-size: .88rem }
+.modal-logo-name {
+  font-family: 'Clash Display', sans-serif; font-weight: 700; font-size: 1rem;
+}
+.modal-logo-name span { color: var(--gold) }
+.modal-tabs {
+  display: flex; gap: 4px; background: rgba(255,255,255,.04);
+  border-radius: 13px; padding: 4px; margin-bottom: 26px;
+}
+.m-tab {
+  flex: 1; padding: 10px; border-radius: 10px; border: none; background: transparent;
+  color: var(--muted); font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: .875rem; font-weight: 500; cursor: pointer; transition: all .22s;
+}
+.m-tab.on { background: linear-gradient(135deg, var(--gold), #d4a432); color: var(--bg); font-weight: 700 }
+.modal-title { font-family: 'Clash Display', sans-serif; font-size: 1.6rem; font-weight: 700; margin-bottom: 5px }
+.modal-sub { color: var(--muted); font-size: .85rem; margin-bottom: 26px }
+.panel { display: none }
+.panel.on { display: block }
+
+/* FORM */
+.form-group { margin-bottom: 16px }
+.form-label {
+  display: block; font-size: .7rem; font-weight: 700; color: var(--muted);
+  margin-bottom: 8px; letter-spacing: .6px; text-transform: uppercase;
+}
+.form-input, .form-select {
+  width: 100%; padding: 13px 16px; border-radius: 12px;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(232,184,75,.12);
+  color: var(--text); font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: .9rem; outline: none; transition: all .22s;
+}
+.form-input:focus, .form-select:focus {
+  border-color: var(--gold); background: rgba(232,184,75,.04);
+  box-shadow: 0 0 0 3px rgba(232,184,75,.08);
+}
+.form-input::placeholder { color: rgba(124,141,181,.3) }
+.form-select option { background: var(--bg2) }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px }
+
+.photo-drop {
+  border: 2px dashed rgba(232,184,75,.2); border-radius: 14px;
+  padding: 22px; text-align: center; cursor: pointer; transition: all .22s;
+}
+.photo-drop:hover { border-color: var(--gold); background: var(--gold4) }
+.photo-drop-icon { font-size: 1.8rem; margin-bottom: 7px }
+.photo-drop-text { font-size: .78rem; color: var(--muted) }
+.photo-preview {
+  display: none; align-items: center; gap: 12px; padding: 11px;
+  background: var(--gold4); border-radius: 12px; border: 1px solid rgba(232,184,75,.2); margin-top: 10px;
+}
+.photo-preview img { width: 48px; height: 48px; border-radius: 10px; object-fit: cover }
+.photo-preview-name { font-size: .78rem; color: var(--gold); font-weight: 600 }
+
+.btn-submit {
+  width: 100%; padding: 15px; border-radius: 13px; border: none;
+  background: linear-gradient(135deg, var(--gold), #d4a432);
+  color: var(--bg); font-family: 'Clash Display', sans-serif;
+  font-size: .95rem; font-weight: 700; cursor: pointer; transition: all .22s;
+  display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 8px;
+}
+.btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(232,184,75,.3) }
+.btn-submit:disabled { opacity: .4; cursor: not-allowed; transform: none!important; box-shadow: none!important }
+.form-footer { text-align: center; margin-top: 18px; font-size: .82rem; color: var(--muted) }
+.form-footer a { color: var(--gold); font-weight: 600; cursor: pointer }
+.error-box {
+  padding: 11px 15px; border-radius: 11px; font-size: .82rem; font-weight: 500;
+  margin-bottom: 15px; background: rgba(239,68,68,.1);
+  border: 1px solid rgba(239,68,68,.3); color: #fca5a5; display: none;
+}
+.success-box {
+  background: rgba(34,197,94,.08); border-color: rgba(34,197,94,.3); color: #86efac;
+}
+.spinner {
+  width: 18px; height: 18px; border: 2px solid transparent;
+  border-top-color: var(--bg); border-radius: 50%; animation: spin .7s linear infinite;
+}
+
+/* ── ADMIN MODAL ── */
+.adm-overlay {
+  position: fixed; inset: 0; z-index: 800; background: rgba(0,0,0,.9);
+  backdrop-filter: blur(24px); display: flex; align-items: center; justify-content: center;
+  padding: 20px; opacity: 0; pointer-events: none; transition: opacity .28s;
+}
+.adm-overlay.open { opacity: 1; pointer-events: all }
+.adm-modal {
+  background: var(--bg2); border: 1px solid rgba(232,184,75,.18);
+  border-radius: 26px; width: 100%; max-width: 420px; padding: 40px;
+  position: relative; transform: scale(.92) translateY(18px); transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+.adm-overlay.open .adm-modal { transform: scale(1) translateY(0) }
+.adm-modal.shake { animation: shake .4s ease }
+.adm-icon {
+  width: 68px; height: 68px; border-radius: 20px;
+  background: linear-gradient(135deg, rgba(232,184,75,.15), rgba(232,184,75,.05));
+  border: 1px solid rgba(232,184,75,.3);
+  display: flex; align-items: center; justify-content: center; font-size: 2rem;
+  margin: 0 auto 20px; animation: glow-pulse 3s ease infinite;
+}
+.adm-title {
+  font-family: 'Clash Display', sans-serif; font-size: 1.4rem; font-weight: 700;
+  text-align: center; margin-bottom: 8px;
+}
+.adm-sub { color: var(--muted); font-size: .82rem; text-align: center; line-height: 1.6; margin-bottom: 26px }
+.adm-input-wrap { position: relative; margin-bottom: 16px }
+.adm-input {
+  width: 100%; padding: 14px 48px 14px 16px; border-radius: 13px;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(232,184,75,.2);
+  color: var(--text); font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: .95rem; outline: none; transition: all .22s; letter-spacing: .5px;
+}
+.adm-input:focus {
+  border-color: var(--gold); background: rgba(232,184,75,.04);
+  box-shadow: 0 0 0 3px rgba(232,184,75,.08);
+}
+.adm-eye {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; color: var(--muted);
+  font-size: .95rem; padding: 4px; transition: color .2s;
+}
+.adm-eye:hover { color: var(--gold) }
+.adm-err {
+  padding: 10px 14px; border-radius: 10px; font-size: .8rem; font-weight: 500;
+  margin-bottom: 14px; background: rgba(239,68,68,.1);
+  border: 1px solid rgba(239,68,68,.3); color: #fca5a5; display: none;
+}
+.adm-attempts { font-size: .72rem; color: rgba(239,68,68,.7); text-align: center; margin-bottom: 11px; display: none }
+.adm-btn {
+  width: 100%; padding: 14px; border-radius: 13px; border: none;
+  background: linear-gradient(135deg, var(--gold), #d4a432);
+  color: var(--bg); font-family: 'Clash Display', sans-serif;
+  font-size: .95rem; font-weight: 700; cursor: pointer; transition: all .22s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.adm-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(232,184,75,.3) }
+.adm-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; box-shadow: none }
+.adm-cancel {
+  width: 100%; padding: 11px; border-radius: 13px;
+  border: 1px solid rgba(255,255,255,.07); background: transparent;
+  color: var(--muted); font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: .88rem; cursor: pointer; transition: all .22s; margin-top: 10px;
+}
+.adm-cancel:hover { border-color: rgba(255,255,255,.18); color: var(--text) }
+
+/* ── TOASTS ── */
+.toasts {
+  position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+  display: flex; flex-direction: column; gap: 10px; pointer-events: none;
+}
+.toast {
+  padding: 13px 18px; border-radius: 14px; max-width: 300px;
+  font-size: .84rem; font-weight: 500; animation: slideIn .3s ease;
+  pointer-events: all; backdrop-filter: blur(12px);
+}
+.t-ok { background: rgba(34,197,94,.12); border: 1px solid rgba(34,197,94,.35); color: #86efac }
+.t-err { background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.35); color: #fca5a5 }
+.t-info { background: rgba(79,142,247,.12); border: 1px solid rgba(79,142,247,.35); color: var(--blue2) }
+
+/* ── NOTIFICATION BANNER ── */
+.notif-banner {
+  position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+  z-index: 500; background: var(--card2);
+  border: 1px solid rgba(232,184,75,.2); border-radius: 16px;
+  padding: 14px 20px; display: flex; align-items: center; gap: 14px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.5); max-width: 420px; width: 90%;
+  animation: fadeUp .4s ease; display: none;
+}
+.notif-icon { font-size: 1.5rem; flex-shrink: 0 }
+.notif-content { flex: 1 }
+.notif-title { font-size: .88rem; font-weight: 700; margin-bottom: 3px }
+.notif-body { font-size: .78rem; color: var(--muted) }
+.notif-close {
+  background: none; border: none; color: var(--muted); cursor: pointer;
+  font-size: .9rem; padding: 4px; transition: color .2s; flex-shrink: 0;
+}
+.notif-close:hover { color: var(--text) }
+
+/* ── LONG PRESS ── */
+.lp-bar {
+  position: absolute; bottom: 0; left: 0; height: 3px; width: 0%;
+  background: linear-gradient(90deg, var(--gold), var(--gold2));
+  border-radius: 0 2px 2px 0; transition: none; pointer-events: none;
+}
+.lp-bar.active { transition: width var(--lp-dur, 1.5s) linear }
+
+/* ── PWA INSTALL ── */
+.pwa-banner {
+  display: none; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  z-index: 9999; background: var(--card2); border: 1px solid rgba(232,184,75,.2);
+  border-radius: 18px; padding: 18px 22px; box-shadow: 0 12px 44px rgba(0,0,0,.5);
+  max-width: 90%; width: 360px; animation: fadeUp .4s ease;
+}
+.pwa-inner { display: flex; align-items: center; gap: 14px; margin-bottom: 14px }
+.pwa-title { font-size: .95rem; font-weight: 700; margin-bottom: 3px }
+.pwa-sub { font-size: .75rem; color: var(--muted) }
+.pwa-actions { display: flex; gap: 8px }
+.pwa-later {
+  flex: 1; padding: 10px; border-radius: 10px;
+  border: 1px solid var(--dim); background: transparent;
+  color: var(--muted); font-size: .8rem; cursor: pointer;
+}
+.pwa-install-btn {
+  flex: 1; padding: 10px; border-radius: 10px; border: none;
+  background: linear-gradient(135deg, var(--gold), #d4a432);
+  color: var(--bg); font-size: .8rem; font-weight: 700; cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  nav { padding: 0 20px }
+  .nav-center { display: none }
+  .hero { padding: 160px 20px 90px }
+  .stats-grid { grid-template-columns: repeat(2, 1fr) }
+  .features { padding: 0 20px 80px }
+  .feat-grid { grid-template-columns: 1fr }
+  footer { padding: 24px 20px; flex-direction: column; text-align: center }
+  .modal { padding: 28px 22px }
+  .form-row { grid-template-columns: 1fr }
+}
+</style>
+</head>
+<body>
+
+<div class="ambient"></div>
+<div class="grid-overlay"></div>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-brand" href="#">
+    <div class="brand-mark">M</div>
+    <div class="brand-name">Marcio<span>Studio</span></div>
+  </a>
+  <div class="nav-center">
+    <span class="nav-link">Fonctionnalités</span>
+    <span class="nav-link">Équipes</span>
+    <span class="nav-link">Rapports</span>
+  </div>
+  <div class="nav-actions" id="nav-actions">
+    <button class="btn-outline" onclick="openAuth('login')">Connexion</button>
+    <button class="btn-primary" onclick="openAuth('register')">Rejoindre →</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    <span class="badge-dot"></span>
+    Plateforme active — MarcioStudio 2026
+  </div>
+  <h1 class="hero-h1">
+    Le hub interne<br>
+    <span class="shine">nouvelle génération</span><br>
+    pour votre équipe
+  </h1>
+  <p class="hero-sub">
+    Gestion des présences, espace collaboratif et notifications en temps réel. 
+    Une seule plateforme pour fédérer tous vos talents.
+  </p>
+  <div class="hero-actions">
+    <button class="cta-main" onclick="openAuth('register')">
+      ⚡ Créer mon accès
+    </button>
+    <button class="cta-secondary" onclick="openAuth('login')">
+      Se connecter →
+    </button>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-wrap">
+  <div class="stats-grid">
+    <div class="s-cell">
+      <span class="s-val" id="s-users">—</span>
+      <div class="s-key">Collaborateurs</div>
+    </div>
+    <div class="s-cell">
+      <span class="s-val" id="s-today">—</span>
+      <div class="s-key">Présences aujourd'hui</div>
+    </div>
+    <div class="s-cell">
+      <span class="s-val">09:00</span>
+      <div class="s-key">Heure d'entrée</div>
+    </div>
+    <div class="s-cell">
+      <span class="s-val">18:00</span>
+      <div class="s-key">Heure de sortie</div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features">
+  <div class="section-label">✦ Fonctionnalités</div>
+  <h2 class="section-title">Tout ce dont votre<br><span>entreprise a besoin</span></h2>
+  <div class="feat-grid">
+    <div class="feat-card">
+      <div class="feat-icon">📍</div>
+      <div class="feat-title">Présence géolocalisée</div>
+      <div class="feat-desc">Pointage sécurisé dans le périmètre GPS de l'entreprise. Hors zone = blocage automatique avec alertes instantanées.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🔔</div>
+      <div class="feat-title">Notifications Push FCM</div>
+      <div class="feat-desc">Recevez instantanément une notification dès qu'un collègue publie du contenu. Système FCM dernier cri, toujours actif.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">💼</div>
+      <div class="feat-title">Espace collaboratif</div>
+      <div class="feat-desc">Publiez textes, photos et vidéos. Réagissez, commentez et partagez dans un fil d'actualité dédié à votre équipe.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">👁️</div>
+      <div class="feat-title">Reconnaissance faciale</div>
+      <div class="feat-desc">Validation biométrique à chaque pointage via Cloudinary. Aucune possibilité de pointer à la place d'un collègue.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📊</div>
+      <div class="feat-title">Rapports & Analytics</div>
+      <div class="feat-desc">Tableaux de bord en temps réel, historiques détaillés et exports. Toutes les données de votre équipe en un coup d'œil.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🛡️</div>
+      <div class="feat-title">Administration avancée</div>
+      <div class="feat-desc">Gérez les comptes, configurez les zones GPS, envoyez des notifications ciblées ou globales à tout le personnel.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-brand">
+    <div class="brand-mark" style="width:30px;height:30px;font-size:.8rem">M</div>
+    <span>Marcio<span style="color:var(--gold)">Studio</span></span>
+  </div>
+  <div class="footer-right">© 2026 MarcioStudio — Plateforme Entreprise · Firestore · FCM · Cloudinary</div>
+</footer>
+
+<!-- AUTH MODAL -->
+<div class="overlay" id="overlay" onclick="bgClose(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAuth()">✕</button>
+    <div class="modal-logo">
+      <div class="brand-mark">M</div>
+      <div class="modal-logo-name">Marcio<span>Studio</span></div>
+    </div>
+    <div class="modal-tabs">
+      <button class="m-tab on" id="tab-login" onclick="switchPanel('login')">Connexion</button>
+      <button class="m-tab" id="tab-register" onclick="switchPanel('register')">Inscription</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="panel on" id="p-login">
+      <div class="modal-title">Bon retour 👋</div>
+      <div class="modal-sub">Accédez à votre espace MarcioStudio</div>
+      <div class="error-box" id="l-err"></div>
+      <div class="form-group">
+        <label class="form-label">Email professionnel</label>
+        <input type="email" class="form-input" id="l-email" placeholder="vous@marciostudio.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mot de passe</label>
+        <input type="password" class="form-input" id="l-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="btn-submit" id="l-btn" onclick="doLogin()">
+        <span>Accéder à mon espace</span>
+      </button>
+      <div class="form-footer">Pas encore de compte ? <a onclick="switchPanel('register')">Rejoindre l'équipe →</a></div>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="panel" id="p-register">
+      <div class="modal-title">Rejoindre l'équipe 🚀</div>
+      <div class="modal-sub">Créez votre profil MarcioStudio</div>
+      <div class="error-box" id="r-err"></div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nom</label>
+          <input type="text" class="form-input" id="r-nom" placeholder="DUPONT">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Prénom</label>
+          <input type="text" class="form-input" id="r-prenom" placeholder="Alice">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email professionnel</label>
+        <input type="email" class="form-input" id="r-email" placeholder="vous@marciostudio.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Département / Poste</label>
+        <input type="text" class="form-input" id="r-dept" placeholder="Marketing, Dev, RH...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contact téléphonique</label>
+        <input type="tel" class="form-input" id="r-contact" placeholder="+33 6 00 00 00 00">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mot de passe</label>
+        <input type="password" class="form-input" id="r-pass" placeholder="8 caractères minimum">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Photo de profil <span style="color:var(--gold);font-size:.65rem">(reconnaissance faciale)</span></label>
+        <div class="photo-drop" onclick="document.getElementById('r-photo').click()">
+          <div class="photo-drop-icon">📸</div>
+          <div class="photo-drop-text">Cliquez ou glissez votre photo<br><span style="opacity:.5;font-size:.72rem">JPG/PNG — Max 5MB</span></div>
+        </div>
+        <input type="file" id="r-photo" accept="image/*" style="display:none" onchange="previewPhoto(event)">
+        <div class="photo-preview" id="photo-preview">
+          <img id="preview-img" src="" alt="">
+          <div>
+            <div class="photo-preview-name" id="preview-name">—</div>
+            <div style="font-size:.72rem;color:var(--muted);margin-top:3px">✓ Photo prête</div>
+          </div>
+        </div>
+      </div>
+      <button class="btn-submit" id="r-btn" onclick="doRegister()">
+        <span>Créer mon profil</span>
+      </button>
+      <div class="form-footer">Déjà inscrit ? <a onclick="switchPanel('login')">Se connecter →</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN MODAL -->
+<div class="adm-overlay" id="adm-overlay" onclick="admBgClose(event)">
+  <div class="adm-modal" id="adm-modal">
+    <div class="adm-icon">🛡️</div>
+    <div class="adm-title">Accès Administrateur</div>
+    <div class="adm-sub">Zone sécurisée — Entrez votre mot de passe<br>pour accéder au panneau d'administration</div>
+    <div class="adm-err" id="adm-err">Mot de passe incorrect.</div>
+    <div class="adm-attempts" id="adm-attempts"></div>
+    <div class="adm-input-wrap">
+      <input type="password" class="adm-input" id="adm-pass"
+             placeholder="Mot de passe administrateur"
+             onkeydown="if(event.key==='Enter')checkAdminPass()">
+      <button class="adm-eye" id="adm-eye" onclick="toggleEye()">👁</button>
+    </div>
+    <button class="adm-btn" id="adm-btn" onclick="checkAdminPass()">
+      <span>Accéder au panneau</span>
+    </button>
+    <button class="adm-cancel" onclick="closeAdmModal()">Annuler</button>
+  </div>
+</div>
+
+<!-- NOTIFICATION BANNER -->
+<div class="notif-banner" id="notif-banner">
+  <div class="notif-icon" id="notif-icon">🔔</div>
+  <div class="notif-content">
+    <div class="notif-title" id="notif-title">Nouvelle publication</div>
+    <div class="notif-body" id="notif-body">Un collègue a partagé du contenu</div>
+  </div>
+  <button class="notif-close" onclick="document.getElementById('notif-banner').style.display='none'">✕</button>
+</div>
+
+<!-- TOASTS -->
+<div class="toasts" id="toasts"></div>
+
+<!-- PWA INSTALL -->
+<div class="pwa-banner" id="pwa-banner">
+  <div class="pwa-inner">
+    <div class="brand-mark" style="width:48px;height:48px;font-size:1.3rem;flex-shrink:0">M</div>
+    <div>
+      <div class="pwa-title">Installer MarcioStudio</div>
+      <div class="pwa-sub">Accès rapide depuis votre écran d'accueil</div>
+    </div>
+  </div>
+  <div class="pwa-actions">
+    <button class="pwa-later" onclick="dismissPWA()">Plus tard</button>
+    <button class="pwa-install-btn" onclick="installPWA()">Installer</button>
+  </div>
+</div>
+
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#e8b84b">
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+import {
+  getFirestore, collection, doc, setDoc, getDoc, getDocs,
+  query, where, orderBy, limit, onSnapshot, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-messaging.js";
+
+const FC = {
+  apiKey: "AIzaSyCPGgtXoDUycykLaTSee0S0yY0tkeJpqKI",
+  authDomain: "data-com-a94a8.firebaseapp.com",
+  projectId: "data-com-a94a8",
+  storageBucket: "data-com-a94a8.firebasestorage.app",
+  messagingSenderId: "276904640935",
+  appId: "1:276904640935:web:9cd805aeba6c34c767f682"
+};
+
+const app = initializeApp(FC);
+const db = getFirestore(app);
+window._db = db;
+window._FS = { collection, doc, setDoc, getDoc, getDocs, query, where, orderBy, limit, onSnapshot, serverTimestamp };
+
+// ── FCM VAPID KEY (à remplacer par la vôtre dans Firebase Console > Project Settings > Cloud Messaging)
+const VAPID_KEY = 'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDkASxefIacJj1KtrwaSWbA2SXiF4lQjjHLwDsJIQ';
+
+// ── INIT FCM ──
+let messaging = null;
+try {
+  messaging = getMessaging(app);
+} catch(e) { console.warn('FCM non disponible:', e) }
+
+// ── DEMANDE PERMISSION PUSH ──
+async function initPushNotifications(uid) {
+  if (!messaging) return;
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') return;
+
+    const token = await getToken(messaging, { vapidKey: VAPID_KEY });
+    if (token && uid) {
+      // Sauvegarder le token FCM dans Firestore
+      await setDoc(doc(db, 'users', uid), { fcmToken: token, fcmUpdatedAt: serverTimestamp() }, { merge: true });
+      console.log('[FCM] Token enregistré');
+    }
+
+    // Écoute des messages en foreground
+    onMessage(messaging, (payload) => {
+      const title = payload.notification?.title || 'MarcioStudio';
+      const body  = payload.notification?.body  || 'Nouvelle notification';
+      showNotifBanner(title, body);
+      toast(title + ' — ' + body, 'info');
+    });
+  } catch(e) {
+    console.warn('[FCM] Erreur:', e);
+  }
+}
+
+function showNotifBanner(title, body) {
+  document.getElementById('notif-title').textContent = title;
+  document.getElementById('notif-body').textContent = body;
+  const banner = document.getElementById('notif-banner');
+  banner.style.display = 'flex';
+  setTimeout(() => { banner.style.display = 'none' }, 6000);
+}
+
+// ── SESSION CHECK ──
+const sess = sessionStorage.getItem('marciostudio_user');
+if (sess) {
+  try {
+    const u = JSON.parse(sess);
+    const na = document.getElementById('nav-actions');
+    const adminBtn = u.role === 'admin'
+      ? `<a href="admin.html" style="padding:9px 18px;border-radius:11px;border:none;background:linear-gradient(135deg,#e8b84b,#d4a432);color:#050810;font-size:.85rem;font-weight:700;text-decoration:none;font-family:'Clash Display',sans-serif">🛡️ Admin</a>`
+      : '';
+    na.innerHTML = `
+      <span style="font-size:.82rem;color:var(--muted);padding:0 6px">👋 ${u.prenom||''}</span>
+      <a href="dashboard.html" style="padding:9px 18px;border-radius:11px;border:1px solid rgba(232,184,75,.3);background:rgba(232,184,75,.08);color:var(--gold);font-size:.85rem;font-weight:600;text-decoration:none">⏱ Mon espace</a>
+      ${adminBtn}
+      <button onclick="sessionStorage.removeItem('marciostudio_user');location.reload()" style="padding:9px 16px;border-radius:11px;border:1px solid rgba(239,68,68,.2);background:transparent;color:#fca5a5;font-size:.82rem;cursor:pointer;font-family:'Cabinet Grotesk',sans-serif">Déco</button>
+    `;
+    // Re-init notifications si session active
+    if (u.uid) initPushNotifications(u.uid);
+  } catch(e) {}
+}
+
+// ── LIVE STATS ──
+onSnapshot(collection(db, 'users'), snap => {
+  document.getElementById('s-users').textContent = snap.size;
+});
+const today = new Date().toISOString().slice(0,10).replace(/-/g,'');
+onSnapshot(collection(db, `clockins_${today}`), snap => {
+  document.getElementById('s-today').textContent = snap.size;
+});
+
+// ── HASH PASSWORD ──
+async function hashPass(pass) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pass));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+// ── LOGIN ──
+window.doLogin = async () => {
+  const email = document.getElementById('l-email').value.trim().toLowerCase();
+  const pass  = document.getElementById('l-pass').value;
+  if (!email || !pass) { showErr('l-err', 'Veuillez remplir tous les champs.'); return; }
+  setLoading('l-btn', true);
+  try {
+    const q = query(collection(db, 'users'), where('email', '==', email), limit(1));
+    const snap = await getDocs(q);
+    if (snap.empty) { showErr('l-err', 'Aucun compte avec cet email.'); setLoading('l-btn', false, 'Accéder à mon espace'); return; }
+    const userDoc = snap.docs[0];
+    const data = userDoc.data();
+    const hashed = await hashPass(pass);
+    if (data.password !== hashed) { showErr('l-err', 'Mot de passe incorrect.'); setLoading('l-btn', false, 'Accéder à mon espace'); return; }
+    const session = { uid: userDoc.id, ...data };
+    delete session.password;
+    sessionStorage.setItem('marciostudio_user', JSON.stringify(session));
+    toast('Connexion réussie ! Redirection…', 'ok');
+    // Init FCM avant redirect
+    await initPushNotifications(userDoc.id);
+    setTimeout(() => {
+      window.location.href = data.role === 'admin' ? 'admin.html' : 'dashboard.html';
+    }, 900);
+  } catch(e) {
+    showErr('l-err', 'Erreur : ' + (e.message || e));
+    setLoading('l-btn', false, 'Accéder à mon espace');
+  }
+};
+
+// ── RESIZE IMAGE ──
+function resizeToBase64(file) {
+  return new Promise(resolve => {
+    if (!file) { resolve(''); return; }
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 200;
+        let w = img.width, h = img.height;
+        if (w > h) { if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; } }
+        else       { if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; } }
+        const c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(c.toDataURL('image/jpeg', 0.8));
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// ── REGISTER ──
+window.doRegister = async () => {
+  const nom     = document.getElementById('r-nom').value.trim();
+  const prenom  = document.getElementById('r-prenom').value.trim();
+  const email   = document.getElementById('r-email').value.trim().toLowerCase();
+  const dept    = document.getElementById('r-dept').value.trim();
+  const contact = document.getElementById('r-contact').value.trim();
+  const pass    = document.getElementById('r-pass').value;
+  const file    = document.getElementById('r-photo').files[0];
+  if (!nom || !prenom || !email || !dept || !contact || !pass) {
+    showErr('r-err', 'Veuillez remplir tous les champs.'); return;
+  }
+  if (pass.length < 8) { showErr('r-err', 'Mot de passe trop court (8 caractères minimum).'); return; }
+  setLoading('r-btn', true);
+  try {
+    const q = query(collection(db, 'users'), where('email', '==', email), limit(1));
+    const exist = await getDocs(q);
+    if (!exist.empty) { showErr('r-err', 'Un compte avec cet email existe déjà.'); setLoading('r-btn', false, 'Créer mon profil'); return; }
+    const photoBase64 = await resizeToBase64(file);
+    const hashed = await hashPass(pass);
+    const uid = 'u_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+    await setDoc(doc(db, 'users', uid), {
+      uid, nom, prenom, email, dept, contact,
+      photoURL: photoBase64, password: hashed,
+      role: 'employee', createdAt: serverTimestamp()
+    });
+    const session = { uid, nom, prenom, email, dept, contact, photoURL: photoBase64, role: 'employee' };
+    sessionStorage.setItem('marciostudio_user', JSON.stringify(session));
+    toast('Bienvenue ' + prenom + ' ! Redirection…', 'ok');
+    await initPushNotifications(uid);
+    setTimeout(() => window.location.href = 'dashboard.html', 900);
+  } catch(e) {
+    showErr('r-err', e.message || 'Erreur lors de la création.');
+    setLoading('r-btn', false, 'Créer mon profil');
+  }
+};
+
+// ── HELPERS ──
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 5000);
+}
+function setLoading(id, on, label = '') {
+  const b = document.getElementById(id);
+  b.disabled = on;
+  b.innerHTML = on ? '<div class="spinner"></div>' : `<span>${label}</span>`;
+}
+function toast(msg, type) {
+  const d = document.createElement('div');
+  d.className = 'toast t-' + type; d.textContent = msg;
+  document.getElementById('toasts').appendChild(d);
+  setTimeout(() => d.remove(), 4500);
+}
+window.toast = toast;
+
+// ── AUTH MODAL ──
+window.openAuth = (tab) => { document.getElementById('overlay').classList.add('open'); switchPanel(tab); };
+window.closeAuth = () => document.getElementById('overlay').classList.remove('open');
+window.bgClose = (e) => { if (e.target === document.getElementById('overlay')) closeAuth(); };
+window.switchPanel = (p) => {
+  document.querySelectorAll('.panel').forEach(el => el.classList.remove('on'));
+  document.getElementById('p-' + p).classList.add('on');
+  document.getElementById('tab-login').classList.toggle('on', p === 'login');
+  document.getElementById('tab-register').classList.toggle('on', p === 'register');
+};
+window.previewPhoto = (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    document.getElementById('preview-img').src = ev.target.result;
+    document.getElementById('preview-name').textContent = f.name;
+    document.getElementById('photo-preview').style.display = 'flex';
+  };
+  r.readAsDataURL(f);
+};
+
+// ── ADMIN MODAL ──
+let admAttempts = 0;
+const ADM_PASS = 'marcio2025@';
+const ADM_MAX  = 5;
+let lpTimer = null;
+
+window.openAdmModal = () => {
+  document.getElementById('adm-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('adm-pass')?.focus(), 300);
+  document.getElementById('adm-err').style.display = 'none';
+  document.getElementById('adm-attempts').style.display = 'none';
+  document.getElementById('adm-pass').value = '';
+  document.getElementById('adm-btn').disabled = false;
+  document.getElementById('adm-btn').innerHTML = '<span>Accéder au panneau</span>';
+};
+window.closeAdmModal = () => {
+  document.getElementById('adm-overlay').classList.remove('open');
+  document.getElementById('adm-pass').value = '';
+};
+window.admBgClose = (e) => { if (e.target === document.getElementById('adm-overlay')) closeAdmModal(); };
+window.toggleEye = () => {
+  const inp = document.getElementById('adm-pass');
+  const eye = document.getElementById('adm-eye');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  eye.textContent = inp.type === 'password' ? '👁' : '🙈';
+};
+window.checkAdminPass = () => {
+  const val = document.getElementById('adm-pass').value;
+  const errEl = document.getElementById('adm-err');
+  const attEl = document.getElementById('adm-attempts');
+  const modal = document.getElementById('adm-modal');
+  if (val === ADM_PASS) {
+    admAttempts = 0;
+    document.getElementById('adm-btn').innerHTML = '<span>✓ Accès accordé…</span>';
+    document.getElementById('adm-btn').disabled = true;
+    toast('Accès admin accordé ! Redirection…', 'ok');
+    setTimeout(() => { closeAdmModal(); window.location.href = 'admin.html'; }, 700);
+    return;
+  }
+  admAttempts++;
+  modal.classList.remove('shake'); void modal.offsetWidth; modal.classList.add('shake');
+  errEl.style.display = 'block';
+  const remaining = ADM_MAX - admAttempts;
+  if (remaining <= 0) {
+    errEl.textContent = 'Trop de tentatives. Accès bloqué 30 secondes.';
+    document.getElementById('adm-btn').disabled = true;
+    document.getElementById('adm-btn').innerHTML = '<span>🔒 Bloqué (30s)</span>';
+    setTimeout(() => {
+      admAttempts = 0;
+      document.getElementById('adm-btn').disabled = false;
+      document.getElementById('adm-btn').innerHTML = '<span>Accéder au panneau</span>';
+      errEl.style.display = 'none';
+    }, 30000);
+  } else {
+    errEl.textContent = 'Mot de passe incorrect.';
+    if (admAttempts >= 2) {
+      attEl.style.display = 'block';
+      attEl.textContent = remaining + ' tentative' + (remaining > 1 ? 's' : '') + ' restante' + (remaining > 1 ? 's' : '');
+    }
+  }
+  document.getElementById('adm-pass').value = '';
+};
+
+// ── LONG PRESS ADMIN ──
+const LP_DUR = 1500;
+window.startLongPress = (e, id) => {
+  e.preventDefault();
+  if (lpTimer) clearTimeout(lpTimer);
+  const bar = document.getElementById('lp-bar-' + id);
+  if (bar) {
+    bar.style.width = '0%'; bar.style.transition = 'none';
+    bar.offsetHeight;
+    bar.style.setProperty('--lp-dur', LP_DUR + 'ms');
+    bar.style.transition = 'width ' + LP_DUR + 'ms linear';
+    bar.style.width = '100%';
+  }
+  lpTimer = setTimeout(() => { if (lpTimer) { lpTimer = null; openAdmModal(); } }, LP_DUR);
+};
+window.cancelLongPress = (id) => {
+  if (lpTimer) { clearTimeout(lpTimer); lpTimer = null; }
+  const bar = document.getElementById('lp-bar-' + id);
+  if (bar) { bar.style.transition = 'width .2s ease'; bar.style.width = '0%'; }
+};
+
+// ── PWA ──
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault(); deferredPrompt = e;
+  setTimeout(() => {
+    if (!localStorage.getItem('pwa-dismissed')) document.getElementById('pwa-banner').style.display = 'block';
+  }, 4000);
+});
+window.addEventListener('appinstalled', () => { document.getElementById('pwa-banner').style.display = 'none'; deferredPrompt = null; });
+window.installPWA = () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(() => { document.getElementById('pwa-banner').style.display = 'none'; deferredPrompt = null; });
+};
+window.dismissPWA = () => { document.getElementById('pwa-banner').style.display = 'none'; localStorage.setItem('pwa-dismissed','1'); };
+
+// ── ONLINE/OFFLINE ──
+window.addEventListener('online', () => toast('Connexion rétablie !', 'ok'));
+window.addEventListener('offline', () => toast('Mode hors ligne.', 'info'));
+</script>
+</body>
+</html>
