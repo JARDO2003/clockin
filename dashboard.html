@@ -500,7 +500,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   <div class="modal">
     <button class="modal-x" onclick="closeFace()">✕</button>
     <h2 id="face-title">Validation faciale</h2>
-    <p id="face-desc">Centrez votre visage · une vidéo de 2s sera enregistrée</p>
+    <p id="face-desc">Centrez votre visage pour confirmer votre identité</p>
     <div class="f-steps">
       <div class="fs-d active" id="fd1"></div>
       <div class="fs-d" id="fd2"></div>
@@ -526,13 +526,13 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
       </div>
     </div>
     <canvas id="face-cv"></canvas>
-    <div class="face-st" id="face-st">Démarrage caméra...</div>
+    <div class="face-st" id="face-st">Démarrage ...</div>
     <!-- Video upload progress -->
     <div class="vid-up-bar" id="vid-up-bar">
-      <div class="vid-up-label"><span>Envoi de la vidéo...</span><span id="vid-up-pct">0%</span></div>
+      <div class="vid-up-label"><span>Envoi de la validation...</span><span id="vid-up-pct">0%</span></div>
       <div class="vid-up-bg"><div class="vid-up-fill" id="vid-up-fill"></div></div>
     </div>
-    <button class="btn-cap" id="btn-cap" disabled onclick="doCapture()">🎥 Démarrer l'enregistrement</button>
+    <button class="btn-cap" id="btn-cap" disabled onclick="doCapture()">🎥 Démarrer la vérification faciale</button>
   </div>
 </div>
 
