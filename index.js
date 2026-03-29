@@ -1,118 +1,154 @@
-/**
- * FCM via Firebase Admin SDK = API HTTP v1 (l’ancien « Server key » legacy n’est plus utilisé).
- *
- * Déploiement : à la racine du projet, avec Firebase CLI installé :
- *   cd functions && npm install && cd .. && firebase deploy --only functions
- *
- * Compte de service : ne jamais commiter de clé JSON. En local, utilisez
- *   set GOOGLE_APPLICATION_CREDENTIALS=chemin/vers/serviceAccount.json
- * En production, les Functions utilisent automatiquement le compte de service du projet.
- */
+// functions/index.js
+// ══════════════════════════════════════════════════════════════════════════════
+// Lambda Workforce — Cloud Function : Notifications Push FCM (HTTP v1 API)
+// ══════════════════════════════════════════════════════════════════════════════
+//
+// DÉPLOIEMENT :
+//   1. npm install -g firebase-tools
+//   2. firebase login
+//   3. cd functions && npm install
+//   4. firebase deploy --only functions
+//
+// Cette fonction écoute les nouveaux documents dans /notifications
+// et envoie une notification push FCM à TOUS les utilisateurs abonnés.
+// ══════════════════════════════════════════════════════════════════════════════
 
-const {initializeApp} = require("firebase-admin/app");
-const {getFirestore, FieldValue} = require("firebase-admin/firestore");
-const {getMessaging} = require("firebase-admin/messaging");
-const {onDocumentCreated} = require("firebase-functions/v2/firestore");
-const {setGlobalOptions} = require("firebase-functions/v2");
+const { onDocumentCreated } = require('firebase-functions/v2/firestore');
+const { initializeApp, cert }  = require('firebase-admin/app');
+const { getFirestore }         = require('firebase-admin/firestore');
+const { getMessaging }         = require('firebase-admin/messaging');
 
-setGlobalOptions({region: "europe-west1", maxInstances: 10});
-
+// Initialisation Admin SDK (utilise les credentials du compte de service)
 initializeApp();
+const db        = getFirestore();
+const messaging = getMessaging();
 
-function chunk(arr, size) {
-  const out = [];
-  for (let i = 0; i < arr.length; i += size) {
-    out.push(arr.slice(i, i + size));
-  }
-  return out;
-}
+// ── Trigger : nouveau document dans /notifications ─────────────────────────
+exports.sendPushOnPost = onDocumentCreated(
+  { document: 'notifications/{notifId}', region: 'europe-west1' },
+  async (event) => {
+    const snap = event.data;
+    if (!snap) return;
 
-/**
- * @param {string[]} tokens
- * @param {{title: string, body: string}} notification
- * @param {Record<string, string>} data string values only for data payload
- */
-async function sendEachTokens(tokens, notification, data) {
-  const messaging = getMessaging();
-  const dataFlat = {};
-  Object.entries(data || {}).forEach(([k, v]) => {
-    dataFlat[k] = String(v ?? "");
-  });
+    const notif = snap.data();
+    if (notif.type !== 'new_post' || notif.sent) return;
 
-  for (const batch of chunk(tokens, 500)) {
-    const messages = batch.map((token) => ({
-      token,
-      notification: {
-        title: notification.title,
-        body: notification.body,
-      },
-      data: dataFlat,
-      android: {priority: "high"},
-      apns: {payload: {aps: {sound: "default"}}},
-    }));
-    const res = await messaging.sendEach(messages);
-    res.responses.forEach((r, i) => {
-      if (!r.success) {
-        console.warn("FCM error", r.error?.code, batch[i]?.slice?.(0, 24));
+    const { title, body, url, authorUid, postId } = notif;
+
+    try {
+      // ── Récupérer tous les tokens FCM enregistrés ──────────────────────
+      const usersSnap = await db.collection('users')
+        .where('fcmToken', '!=', null)
+        .get();
+
+      const tokens = [];
+      usersSnap.forEach(doc => {
+        const data = doc.data();
+        // Ne pas notifier l'auteur de la publication
+        if (doc.id !== authorUid && data.fcmToken) {
+          tokens.push(data.fcmToken);
+        }
+      });
+
+      if (tokens.length === 0) {
+        console.log('[FCM] Aucun token trouvé.');
+        await snap.ref.update({ sent: true, sentAt: new Date(), recipientCount: 0 });
+        return;
       }
-    });
+
+      console.log(`[FCM] Envoi à ${tokens.length} device(s)...`);
+
+      // ── FCM HTTP v1 : sendEachForMulticast ────────────────────────────
+      // (remplace l'ancienne API sendMulticast qui utilisait le Server Key)
+      const message = {
+        tokens,
+        notification: {
+          title: title || '🔔 Lambda Workforce',
+          body:  body  || 'Nouvelle publication dans le fil d\'actualité',
+        },
+        webpush: {
+          notification: {
+            title:   title || '🔔 Lambda Workforce',
+            body:    body  || 'Nouvelle publication',
+            icon:    '/icons/icon-192.png',
+            badge:   '/icons/badge-72.png',
+            tag:     `post-${postId}`,
+            renotify: true,
+            requireInteraction: false,
+            actions: [
+              { action: 'open',    title: '👁 Voir'    },
+              { action: 'dismiss', title: '✕ Ignorer'  }
+            ],
+            vibrate: [200, 100, 200]
+          },
+          fcmOptions: {
+            link: url || '/dashboard.html#community'
+          },
+          headers: {
+            Urgency: 'normal'
+          }
+        },
+        data: {
+          url:    url    || '/dashboard.html#community',
+          postId: postId || '',
+          type:   'new_post',
+          tag:    `post-${postId}`
+        }
+      };
+
+      const response = await messaging.sendEachForMulticast(message);
+      console.log(`[FCM] ✓ ${response.successCount} envoyés, ✗ ${response.failureCount} échecs`);
+
+      // ── Nettoyer les tokens invalides ──────────────────────────────────
+      const invalidTokens = [];
+      response.responses.forEach((resp, idx) => {
+        if (!resp.success) {
+          const code = resp.error?.code;
+          if (
+            code === 'messaging/invalid-registration-token' ||
+            code === 'messaging/registration-token-not-registered'
+          ) {
+            invalidTokens.push(tokens[idx]);
+          }
+          console.warn(`[FCM] Échec token[${idx}]:`, resp.error?.message);
+        }
+      });
+
+      if (invalidTokens.length > 0) {
+        console.log(`[FCM] Suppression de ${invalidTokens.length} token(s) invalide(s)...`);
+        const batch = db.batch();
+        usersSnap.forEach(userDoc => {
+          if (invalidTokens.includes(userDoc.data().fcmToken)) {
+            batch.update(userDoc.ref, { fcmToken: null });
+          }
+        });
+        await batch.commit();
+      }
+
+      // ── Marquer la notification comme envoyée ──────────────────────────
+      await snap.ref.update({
+        sent:           true,
+        sentAt:         new Date(),
+        recipientCount: response.successCount,
+        failureCount:   response.failureCount
+      });
+
+    } catch (err) {
+      console.error('[FCM] Erreur critique:', err);
+      await snap.ref.update({ sent: true, error: err.message });
+    }
   }
-}
+);
 
-exports.notifyOnNewPost = onDocumentCreated("posts/{postId}", async (event) => {
-  const post = event.data.data();
-  const authorUid = post.uid || "";
-  const uName = post.uName || "Collaborateur";
-  const preview = (post.txt || "Publication / média partagé").slice(0, 180);
-
-  const db = getFirestore();
-  const snap = await db.collection("users").get();
-  const tokens = [];
-  snap.forEach((doc) => {
-    if (doc.id === authorUid) return;
-    const t = doc.get("fcmToken");
-    if (typeof t === "string" && t.length > 20) tokens.push(t);
-  });
-  const unique = [...new Set(tokens)];
-  if (!unique.length) return;
-
-  await sendEachTokens(
-      unique,
-      {title: `Lambda — ${uName}`, body: preview},
-      {type: "new_post", postId: event.params.postId || ""},
-  );
-});
-
-exports.notifyOnBroadcast = onDocumentCreated("pushBroadcasts/{docId}", async (event) => {
-  const d = event.data.data();
-  if (d.processed === true) return;
-
-  const title = String(d.title || "Lambda").slice(0, 200);
-  const body = String(d.body || "").slice(0, 2000);
-  const scope = d.scope === "selected" ? "selected" : "all";
-  /** @type {Set<string>|null} */
-  let allowed = null;
-  if (scope === "selected" && Array.isArray(d.userIds)) {
-    allowed = new Set(d.userIds.filter((x) => typeof x === "string"));
-  }
-
-  const db = getFirestore();
-  const snap = await db.collection("users").get();
-  const tokens = [];
-  snap.forEach((doc) => {
-    if (allowed && !allowed.has(doc.id)) return;
-    const t = doc.get("fcmToken");
-    if (typeof t === "string" && t.length > 20) tokens.push(t);
-  });
-  const unique = [...new Set(tokens)];
-
-  if (unique.length) {
-    await sendEachTokens(unique, {title, body}, {type: "broadcast"});
-  }
-
-  await event.data.ref.update({
-    processed: true,
-    sentAt: FieldValue.serverTimestamp(),
-    recipientCount: unique.length,
-  });
-});
+// ══════════════════════════════════════════════════════════════════════════════
+// RÈGLES FIRESTORE à ajouter dans firestore.rules :
+// ══════════════════════════════════════════════════════════════════════════════
+//
+// match /notifications/{id} {
+//   allow create: if request.auth != null;
+//   allow read, update, delete: if false; // uniquement la Cloud Function
+// }
+// match /users/{uid} {
+//   allow read, write: if request.auth != null && request.auth.uid == uid;
+// }
+// ══════════════════════════════════════════════════════════════════════════════
