@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎓 Générateur d'icônes UTT LOKO</title>
+<style>
+:root {
+  --bg: #080e0a;
+  --bg2: #0f1812;
+  --lime: #a8e63d;
+  --text: #e8f5ec;
+  --muted: #7aac88;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 1.8rem;
+}
+
+h1 span {
+  color: var(--lime);
+}
+
+.subtitle {
+  text-align: center;
+  color: var(--muted);
+  margin-bottom: 30px;
+  font-size: 0.9rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.icon-card {
+  background: var(--bg2);
+  border: 1px solid rgba(168, 230, 61, 0.2);
+  border-radius: 12px;
+  padding: 15px;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.icon-card:hover {
+  border-color: var(--lime);
+  transform: translateY(-3px);
+}
+
+.icon-card canvas {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  background: transparent;
+}
+
+.icon-card .size {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+
+.icon-card .download {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--lime);
+  background: transparent;
+  color: var(--lime);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.icon-card .download:hover {
+  background: var(--lime);
+  color: var(--bg);
+}
+
+.actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 14px 28px;
+  border-radius: 10px;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: var(--lime);
+  color: var(--bg);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(168, 230, 61, 0.3);
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--lime);
+  color: var(--lime);
+}
+
+.btn-secondary:hover {
+  background: var(--lime);
+  color: var(--bg);
+}
+
+.preview-section {
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid rgba(168, 230, 61, 0.1);
+}
+
+.preview-section h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+  color: var(--muted);
+}
+
+.preview-grid {
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.preview-item {
+  text-align: center;
+}
+
+.preview-item img {
+  border-radius: 20px;
+  margin-bottom: 10px;
+  background: #fff;
+}
+
+.preview-item .label {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.status {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--lime);
+  color: var(--bg);
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-weight: 600;
+  opacity: 0;
+  transition: all 0.3s;
+  pointer-events: none;
+}
+
+.status.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.status.hide {
+  opacity: 0;
+  transform: translateX(-50%) translateY(20px);
+}
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎓 Générateur d'icônes <span>UTT LOKO</span></h1>
+    <p class="subtitle">Créez toutes les icônes nécessaires pour votre PWA</p>
+    
+    <div class="grid" id="iconGrid"></div>
+    
+    <div class="actions">
+      <button class="btn btn-primary" onclick="downloadAll()">
+        📦 Tout télécharger (ZIP)
+      </button>
+      <button class="btn btn-secondary" onclick="downloadIOS()">
+        🍎 Fichiers iOS (splash)
+      </button>
+      <button class="btn btn-secondary" onclick="downloadShortcuts()">
+        ⚡ Raccourcis
+      </button>
+    </div>
+
+    <div class="preview-section">
+      <h2>📱 Aperçu sur appareil</h2>
+      <div class="preview-grid" id="previewGrid"></div>
+    </div>
+  </div>
+
+  <div class="status" id="status">Téléchargement en cours...</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+const zip = new JSZip();
+const iconsFolder = zip.folder("icons");
+const splashFolder = zip.folder("splash");
+const shortcutsFolder = zip.folder("shortcuts");
+
+// Fonction pour dessiner l'icône UTT LOKO
+function drawIcon(ctx, size) {
+  const center = size / 2;
+  const radius = size * 0.38;
+  
+  // Fond dégradé
+  const grad = ctx.createLinearGradient(0, 0, size, size);
+  grad.addColorStop(0, '#0f1812');
+  grad.addColorStop(0.5, '#162019');
+  grad.addColorStop(1, '#1b2b21');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, size, size);
+  
+  // Bordure néon
+  ctx.strokeStyle = '#a8e63d';
+  ctx.lineWidth = Math.max(2, size * 0.015);
+  ctx.beginPath();
+  ctx.roundRect(size*0.08, size*0.08, size*0.84, size*0.84, size*0.12);
+  ctx.stroke();
+  
+  // Cercle intérieur glow
+  const glowGrad = ctx.createRadialGradient(center, center, 0, center, center, radius);
+  glowGrad.addColorStop(0, 'rgba(168, 230, 61, 0.3)');
+  glowGrad.addColorStop(0.7, 'rgba(168, 230, 61, 0.1)');
+  glowGrad.addColorStop(1, 'rgba(168, 230, 61, 0)');
+  ctx.fillStyle = glowGrad;
+  ctx.beginPath();
+  ctx.arc(center, center, radius * 1.2, 0, Math.PI * 2);
+  ctx.fill();
+  
+  // Cercle principal
+  ctx.fillStyle = '#a8e63d';
+  ctx.beginPath();
+  ctx.arc(center, center, radius, 0, Math.PI * 2);
+  ctx.fill();
+  
+  // Ombre portée
+  ctx.shadowColor = 'rgba(168, 230, 61, 0.4)';
+  ctx.shadowBlur = size * 0.05;
+  ctx.shadowOffsetY = size * 0.02;
+  
+  // Lettre UTT ou emoji
+  ctx.shadowColor = 'transparent';
+  ctx.fillStyle = '#080e0a';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  
+  if (size >= 144) {
+    // Pour les grandes tailles, utiliser une police bold
+    ctx.font = `bold ${size * 0.35}px "Segoe UI", Arial, sans-serif`;
+    ctx.fillText('UTT', center, center);
+    
+    // Sous-titre LOKO pour les très grandes
+    if (size >= 512) {
+      ctx.font = `600 ${size * 0.12}px "Segoe UI", Arial, sans-serif`;
+      ctx.fillStyle = '#3d5e47';
+      ctx.fillText('LOKO', center, center + size * 0.28);
+    }
+  } else {
+    // Pour les petites tailles, emoji graduation
+    ctx.font = `${size * 0.5}px Arial`;
+    ctx.fillText('🎓', center, center);
+  }
+  
+  // Points décoratifs (coins)
+  ctx.fillStyle = '#a8e63d';
+  const dotSize = size * 0.025;
+  const offset = size * 0.15;
+  [
+    [offset, offset],
+    [size - offset, offset],
+    [offset, size - offset],
+    [size - offset, size - offset]
+  ].forEach(([x, y]) => {
+    ctx.beginPath();
+    ctx.arc(x, y, dotSize, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
+// Générer les icônes principales
+function generateIcons() {
+  const grid = document.getElementById('iconGrid');
+  
+  sizes.forEach(size => {
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    
+    drawIcon(ctx, size);
+    
+    // Créer la carte
+    const card = document.createElement('div');
+    card.className = 'icon-card';
+    
+    const label = document.createElement('div');
+    label.className = 'size';
+    label.textContent = `${size}×${size}px`;
+    
+    const downloadBtn = document.createElement('button');
+    downloadBtn.className = 'download';
+    downloadBtn.textContent = '⬇️ PNG';
+    downloadBtn.onclick = () => downloadSingle(canvas, `icon-${size}x${size}.png`);
+    
+    card.appendChild(canvas);
+    card.appendChild(label);
+    card.appendChild(downloadBtn);
+    grid.appendChild(card);
+    
+    // Ajouter au ZIP
+    canvas.toBlob(blob => {
+      iconsFolder.file(`icon-${size}x${size}.png`, blob);
+    });
+  });
+  
+  // Générer le badge 72x72
+  generateBadge();
+  
+  // Générer les aperçus
+  generatePreviews();
+}
+
+// Badge pour notifications
+function generateBadge() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 72;
+  canvas.height = 72;
+  const ctx = canvas.getContext('2d');
+  
+  // Fond lime
+  ctx.fillStyle = '#a8e63d';
+  ctx.beginPath();
+  ctx.arc(36, 36, 34, 0, Math.PI * 2);
+  ctx.fill();
+  
+  // Bordure
+  ctx.strokeStyle = '#080e0a';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  
+  // UTT
+  ctx.fillStyle = '#080e0a';
+  ctx.font = 'bold 28px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('U', 36, 36);
+  
+  canvas.toBlob(blob => {
+    iconsFolder.file('badge-72x72.png', blob);
+  });
+}
+
+// Icônes de raccourcis
+function generateShortcuts() {
+  const shortcuts = [
+    { name: 'clock', icon: '⏱️', bg: '#a8e63d' },
+    { name: 'community', icon: '💬', bg: '#f97316' }
+  ];
+  
+  shortcuts.forEach(({ name, icon, bg }) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 96;
+    canvas.height = 96;
+    const ctx = canvas.getContext('2d');
+    
+    // Fond
+    ctx.fillStyle = bg;
+    ctx.beginPath();
+    ctx.roundRect(4, 4, 88, 88, 16);
+    ctx.fill();
+    
+    // Emoji
+    ctx.font = '48px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(icon, 48, 48);
+    
+    canvas.toBlob(blob => {
+      shortcutsFolder.file(`shortcut-${name}.png`, blob);
+    });
+  });
+}
+
+// Splash screens iOS
+function generateSplashScreens() {
+  const splashSizes = [
+    { w: 640, h: 1136, name: 'splash-640x1136' },   // iPhone 5/SE
+    { w: 750, h: 1334, name: 'splash-750x1334' },   // iPhone 6/7/8
+    { w: 828, h: 1792, name: 'splash-828x1792' },   // iPhone XR/11
+    { w: 1125, h: 2436, name: 'splash-1125x2436' }, // iPhone X/XS/11 Pro
+    { w: 1242, h: 2208, name: 'splash-1242x2208' }, // iPhone 6/7/8 Plus
+    { w: 1242, h: 2688, name: 'splash-1242x2688' }, // iPhone XS Max/11 Pro Max
+    { w: 1536, h: 2048, name: 'splash-1536x2048' }, // iPad
+    { w: 1668, h: 2224, name: 'splash-1668x2224' }, // iPad Pro 10.5
+    { w: 2048, h: 2732, name: 'splash-2048x2732' }  // iPad Pro 12.9
+  ];
+  
+  splashSizes.forEach(({ w, h, name }) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    
+    // Fond
+    const grad = ctx.createLinearGradient(0, 0, w, h);
+    grad.addColorStop(0, '#080e0a');
+    grad.addColorStop(0.5, '#0f1812');
+    grad.addColorStop(1, '#162019');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+    
+    // Logo central
+    const logoSize = Math.min(w, h) * 0.25;
+    const centerX = w / 2;
+    const centerY = h / 2;
+    
+    // Cercle glow
+    const glowGrad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, logoSize);
+    glowGrad.addColorStop(0, 'rgba(168, 230, 61, 0.2)');
+    glowGrad.addColorStop(1, 'rgba(168, 230, 61, 0)');
+    ctx.fillStyle = glowGrad;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, logoSize * 1.5, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Cercle principal
+    ctx.fillStyle = '#a8e63d';
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, logoSize * 0.5, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Texte UTT
+    ctx.fillStyle = '#080e0a';
+    ctx.font = `bold ${logoSize * 0.4}px "Segoe UI", Arial, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('UTT', centerX, centerY);
+    
+    // Texte LOKO en bas
+    ctx.fillStyle = '#7aac88';
+    ctx.font = `300 ${logoSize * 0.15}px "Segoe UI", Arial, sans-serif`;
+    ctx.fillText('Système de Présence', centerX, h * 0.85);
+    
+    canvas.toBlob(blob => {
+      splashFolder.file(`${name}.png`, blob);
+    });
+  });
+}
+
+// Aperçus
+function generatePreviews() {
+  const previewGrid = document.getElementById('previewGrid');
+  
+  // iPhone style
+  const iphoneCanvas = document.createElement('canvas');
+  iphoneCanvas.width = 180;
+  iphoneCanvas.height = 180;
+  const ictx = iphoneCanvas.getContext('2d');
+  drawIcon(ictx, 180);
+  
+  const iphoneDiv = document.createElement('div');
+  iphoneDiv.className = 'preview-item';
+  iphoneDiv.innerHTML = `
+    <img src="${iphoneCanvas.toDataURL()}" width="120" style="border-radius:22px;">
+    <div class="label">iPhone Home Screen</div>
+  `;
+  previewGrid.appendChild(iphoneDiv);
+  
+  // Android style
+  const androidCanvas = document.createElement('canvas');
+  androidCanvas.width = 192;
+  androidCanvas.height = 192;
+  const actx = androidCanvas.getContext('2d');
+  drawIcon(actx, 192);
+  
+  const androidDiv = document.createElement('div');
+  androidDiv.className = 'preview-item';
+  androidDiv.innerHTML = `
+    <img src="${androidCanvas.toDataURL()}" width="120" style="border-radius:24px;">
+    <div class="label">Android Adaptive</div>
+  `;
+  previewGrid.appendChild(androidDiv);
+  
+  // Windows style
+  const winCanvas = document.createElement('canvas');
+  winCanvas.width = 150;
+  winCanvas.height = 150;
+  const wctx = winCanvas.getContext('2d');
+  drawIcon(wctx, 150);
+  
+  const winDiv = document.createElement('div');
+  winDiv.className = 'preview-item';
+  winDiv.innerHTML = `
+    <img src="${winCanvas.toDataURL()}" width="100" style="border-radius:0;">
+    <div class="label">Windows Tile</div>
+  `;
+  previewGrid.appendChild(winDiv);
+}
+
+// Téléchargement unique
+function downloadSingle(canvas, filename) {
+  const link = document.createElement('a');
+  link.download = filename;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  showStatus(`Téléchargé: ${filename}`);
+}
+
+// Télécharger tout
+function downloadAll() {
+  showStatus('Génération du ZIP en cours...');
+  
+  setTimeout(() => {
+    zip.generateAsync({ type: 'blob' }).then(content => {
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(content);
+      link.download = 'utt-loko-icons.zip';
+      link.click();
+      showStatus('✅ Tous les fichiers téléchargés !');
+    });
+  }, 500);
+}
+
+// Télécharger iOS seul
+function downloadIOS() {
+  const iosZip = new JSZip();
+  const splash = iosZip.folder('splash');
+  
+  // Regénérer seulement les splash
+  const splashSizes = [
+    { w: 640, h: 1136, name: 'splash-640x1136' },
+    { w: 750, h: 1334, name: 'splash-750x1334' },
+    { w: 828, h: 1792, name: 'splash-828x1792' },
+    { w: 1125, h: 2436, name: 'splash-1125x2436' },
+    { w: 1242, h: 2208, name: 'splash-1242x2208' },
+    { w: 1242, h: 2688, name: 'splash-1242x2688' },
+    { w: 1536, h: 2048, name: 'splash-1536x2048' },
+    { w: 1668, h: 2224, name: 'splash-1668x2224' },
+    { w: 2048, h: 2732, name: 'splash-2048x2732' }
+  ];
+  
+  let generated = 0;
+  splashSizes.forEach(({ w, h, name }) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    
+    // Fond
+    const grad = ctx.createLinearGradient(0, 0, w, h);
+    grad.addColorStop(0, '#080e0a');
+    grad.addColorStop(0.5, '#0f1812');
+    grad.addColorStop(1, '#162019');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+    
+    // Logo
+    const logoSize = Math.min(w, h) * 0.25;
+    const centerX = w / 2;
+    const centerY = h / 2;
+    
+    ctx.fillStyle = '#a8e63d';
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, logoSize * 0.5, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = '#080e0a';
+    ctx.font = `bold ${logoSize * 0.4}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('UTT', centerX, centerY);
+    
+    ctx.fillStyle = '#7aac88';
+    ctx.font = `300 ${logoSize * 0.15}px Arial`;
+    ctx.fillText('Système de Présence', centerX, h * 0.85);
+    
+    canvas.toBlob(blob => {
+      splash.file(`${name}.png`, blob);
+      generated++;
+      if (generated === splashSizes.length) {
+        iosZip.generateAsync({ type: 'blob' }).then(content => {
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(content);
+          link.download = 'utt-loko-ios-splash.zip';
+          link.click();
+          showStatus('✅ Splash screens iOS téléchargés !');
+        });
+      }
+    });
+  });
+}
+
+// Télécharger raccourcis
+function downloadShortcuts() {
+  const shortZip = new JSZip();
+  const shortcuts = shortZip.folder('shortcuts');
+  
+  const items = [
+    { name: 'clock', icon: '⏱️', bg: '#a8e63d' },
+    { name: 'community', icon: '💬', bg: '#f97316' }
+  ];
+  
+  let done = 0;
+  items.forEach(({ name, icon, bg }) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 96;
+    canvas.height = 96;
+    const ctx = canvas.getContext('2d');
+    
+    ctx.fillStyle = bg;
+    ctx.beginPath();
+    ctx.roundRect(4, 4, 88, 88, 16);
+    ctx.fill();
+    
+    ctx.font = '48px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(icon, 48, 48);
+    
+    canvas.toBlob(blob => {
+      shortcuts.file(`shortcut-${name}.png`, blob);
+      done++;
+      if (done === items.length) {
+        shortZip.generateAsync({ type: 'blob' }).then(content => {
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(content);
+          link.download = 'utt-loko-shortcuts.zip';
+          link.click();
+          showStatus('✅ Icônes de raccourcis téléchargées !');
+        });
+      }
+    });
+  });
+}
+
+// Status notification
+function showStatus(msg) {
+  const status = document.getElementById('status');
+  status.textContent = msg;
+  status.classList.remove('hide');
+  status.classList.add('show');
+  
+  setTimeout(() => {
+    status.classList.remove('show');
+    status.classList.add('hide');
+  }, 3000);
+}
+
+// Initialisation
+generateIcons();
+generateShortcuts();
+generateSplashScreens();
+</script>
+</body>
+</html>
