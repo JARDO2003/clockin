@@ -4,17 +4,21 @@
 <meta charset="UTF-8">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UTT LOKO — Administration</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>Lambda — Administration</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
 :root{
-  --bg:#080e0a;--bg2:#0f1812;--bg3:#162019;--card:#1b2b21;--card2:#213228;
-  --lime:#a8e63d;--lime2:#c6f255;--lime3:rgba(168,230,61,.13);--lime4:rgba(168,230,61,.07);
-  --orange:#f97316;--red:#ef4444;--blue:#3b82f6;
-  --text:#e8f5ec;--muted:#7aac88;--dim:#3d5e47;
+  --bg:#05070c;--bg2:#0a0e14;--bg3:#111820;--card:#131a24;--card2:#1a2330;
+  --lime:#c9a227;--lime2:#e8c547;--lime3:rgba(201,162,39,.18);--lime4:rgba(201,162,39,.08);
+  --orange:#e8a54b;--red:#ef4444;--blue:#3b82f6;
+  --text:#e8eaef;--muted:#8b92a8;--dim:#4a5366;
   --sb-w:248px;
 }
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 70% 50% at 12% 0%,rgba(201,162,39,.1) 0%,transparent 50%);
+  opacity:.85}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;overflow-x:hidden}
@@ -29,29 +33,30 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 
 /* ── MOBILE TOPBAR ── */
 .mob-top{display:none;position:fixed;top:0;left:0;right:0;z-index:60;
-  height:56px;background:var(--bg2);border-bottom:1px solid rgba(168,230,61,.1);
+  height:56px;background:var(--bg2);border-bottom:1px solid rgba(201,162,39,.1);
   align-items:center;padding:0 16px;gap:12px}
 .mob-top .logo{display:flex;align-items:center;gap:8px;font-family:'Syne',sans-serif;font-weight:800;font-size:1rem}
-.mob-top .logo .ico{width:28px;height:28px;border-radius:7px;background:var(--lime);display:flex;align-items:center;justify-content:center;font-size:.7rem}
+.mob-top .logo .ico{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--lime),#8b6914);display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:800;color:var(--bg)}
 .mob-top .logo span{color:var(--lime)}
 .mob-top .logo .badge{margin-left:4px;padding:1px 6px;border-radius:4px;background:var(--lime3);color:var(--lime);font-size:.55rem;font-weight:700;letter-spacing:.5px}
 .mob-top .spacer{flex:1}
 .mob-top .ap-av-sm{width:30px;height:30px;border-radius:50%;background:var(--lime);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--bg);font-size:.72rem;overflow:hidden;flex-shrink:0}
 .mob-top .ap-av-sm img{width:100%;height:100%;object-fit:cover}
-.hamburger{width:36px;height:36px;border:none;background:rgba(168,230,61,.08);border-radius:9px;
+.hamburger{width:36px;height:36px;border:none;background:rgba(201,162,39,.08);border-radius:9px;
   cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;flex-shrink:0}
 .hamburger span{display:block;width:16px;height:1.5px;background:var(--lime);border-radius:2px;transition:all .25s}
 
 /* ── SIDEBAR ── */
 .sb{width:var(--sb-w);min-height:100vh;background:var(--bg2);
-  border-right:1px solid rgba(168,230,61,.09);
+  border-right:1px solid rgba(201,162,39,.09);
   display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:50;
   transition:transform .28s cubic-bezier(.4,0,.2,1)}
 .sb-logo{display:flex;align-items:center;gap:10px;padding:20px 18px 18px;
-  border-bottom:1px solid rgba(168,230,61,.07);
+  border-bottom:1px solid rgba(201,162,39,.07);
   font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:800}
-.sb-ico{width:32px;height:32px;border-radius:9px;background:var(--lime);
-  display:flex;align-items:center;justify-content:center;font-size:.82rem;flex-shrink:0}
+.sb-ico{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--lime),#8b6914);
+  display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;color:var(--bg);flex-shrink:0;
+  box-shadow:0 0 20px rgba(201,162,39,.3)}
 .sb-logo span{color:var(--lime)}
 .sb-badge{margin-left:auto;padding:2px 7px;border-radius:5px;
   background:var(--lime3);color:var(--lime);font-size:.6rem;font-weight:700;letter-spacing:.5px}
@@ -67,9 +72,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 .ni .ic{font-size:.95rem;width:18px;text-align:center}
 .ni:hover{color:var(--text);background:var(--lime4)}
 .ni.on{color:var(--lime);background:var(--lime4);border-left-color:var(--lime);font-weight:600}
-.sb-foot{padding:14px 18px;border-top:1px solid rgba(168,230,61,.07)}
+.sb-foot{padding:14px 18px;border-top:1px solid rgba(201,162,39,.07)}
 .admin-pill{display:flex;align-items:center;gap:9px;padding:10px 11px;border-radius:13px;
-  background:var(--lime3);border:1px solid rgba(168,230,61,.1);margin-bottom:9px}
+  background:var(--lime3);border:1px solid rgba(201,162,39,.1);margin-bottom:9px}
 .ap-av{width:30px;height:30px;border-radius:50%;background:var(--lime);
   display:flex;align-items:center;justify-content:center;font-weight:700;
   color:var(--bg);font-size:.75rem;overflow:hidden;flex-shrink:0}
@@ -93,16 +98,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 .pg-hd-row{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px}
 
 /* CARDS */
-.card{background:var(--card);border:1px solid rgba(168,230,61,.09);
+.card{background:var(--card);border:1px solid rgba(201,162,39,.09);
   border-radius:20px;padding:22px;margin-bottom:18px;position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(168,230,61,.18),transparent)}
+  background:linear-gradient(90deg,transparent,rgba(201,162,39,.18),transparent)}
 .card-h{font-family:'Syne',sans-serif;font-size:.97rem;font-weight:700;margin-bottom:4px}
 .card-sub{font-size:.76rem;color:var(--muted);margin-bottom:18px}
 
 /* MINI STATS */
 .mc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:20px}
-.mc{background:var(--card);border:1px solid rgba(168,230,61,.09);border-radius:17px;padding:18px;text-align:center}
+.mc{background:var(--card);border:1px solid rgba(201,162,39,.09);border-radius:17px;padding:18px;text-align:center}
 .mc-n{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;margin-bottom:3px}
 .mc-l{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
 .mc.lime .mc-n{color:var(--lime)}
@@ -112,15 +117,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 
 /* TABLE */
-.tbl-w{border-radius:13px;border:1px solid rgba(168,230,61,.09);overflow:hidden;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tbl-w{border-radius:13px;border:1px solid rgba(201,162,39,.09);overflow:hidden;overflow-x:auto;-webkit-overflow-scrolling:touch}
 table{width:100%;border-collapse:collapse;min-width:420px}
 thead{background:var(--lime4)}
 th{padding:11px 14px;text-align:left;font-size:.68rem;letter-spacing:.8px;
   text-transform:uppercase;color:var(--muted);font-weight:700;
-  border-bottom:1px solid rgba(168,230,61,.09);white-space:nowrap}
+  border-bottom:1px solid rgba(201,162,39,.09);white-space:nowrap}
 td{padding:11px 14px;font-size:.83rem;border-bottom:1px solid rgba(255,255,255,.04)}
 tr:last-child td{border:none}
-tr:hover td{background:rgba(168,230,61,.025)}
+tr:hover td{background:rgba(201,162,39,.025)}
 .badge{display:inline-flex;padding:3px 9px;border-radius:100px;font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;align-items:center;gap:5px}
 .b-lime{background:var(--lime3);color:var(--lime)}
 .b-org{background:rgba(249,115,22,.12);color:var(--orange)}
@@ -135,12 +140,12 @@ tr:hover td{background:rgba(168,230,61,.025)}
 .av-em{font-size:.7rem;color:var(--muted)}
 
 /* VIDEO PREVIEW in table */
-.face-vid-thumb{width:52px;height:40px;border-radius:7px;object-fit:cover;cursor:pointer;border:1px solid rgba(168,230,61,.2);vertical-align:middle}
+.face-vid-thumb{width:52px;height:40px;border-radius:7px;object-fit:cover;cursor:pointer;border:1px solid rgba(201,162,39,.2);vertical-align:middle}
 .face-vid-thumb:hover{border-color:var(--lime)}
 
 /* MAP */
 #map-box{height:270px;border-radius:13px;overflow:hidden;
-  border:1px solid rgba(168,230,61,.14);margin-bottom:16px;background:var(--bg3)}
+  border:1px solid rgba(201,162,39,.14);margin-bottom:16px;background:var(--bg3)}
 #leaflet-map{height:100%;width:100%}
 
 /* FORM */
@@ -148,10 +153,10 @@ tr:hover td{background:rgba(168,230,61,.025)}
 .fl{display:block;font-size:.7rem;font-weight:600;color:var(--muted);
   margin-bottom:7px;letter-spacing:.5px;text-transform:uppercase}
 .fi,.fs{width:100%;padding:11px 13px;border-radius:10px;
-  background:rgba(255,255,255,.05);border:1px solid rgba(168,230,61,.13);
+  background:rgba(255,255,255,.05);border:1px solid rgba(201,162,39,.13);
   color:var(--text);font-family:'DM Sans',sans-serif;font-size:.86rem;
   outline:none;transition:all .2s}
-.fi:focus,.fs:focus{border-color:var(--lime);background:rgba(168,230,61,.04)}
+.fi:focus,.fs:focus{border-color:var(--lime);background:rgba(201,162,39,.04)}
 .fi::placeholder{color:rgba(122,172,136,.3)}
 .fs option{background:var(--bg2)}
 .fr{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -161,22 +166,30 @@ tr:hover td{background:rgba(168,230,61,.025)}
 .btn-sm{padding:7px 13px;font-size:.76rem}
 .btn-lime{background:var(--lime);color:var(--bg)}
 .btn-lime:hover{background:var(--lime2)}
-.btn-ol{background:transparent;color:var(--muted);border:1px solid rgba(168,230,61,.18)}
+.btn-ol{background:transparent;color:var(--muted);border:1px solid rgba(201,162,39,.18)}
 .btn-ol:hover{border-color:var(--lime);color:var(--lime)}
 .btn-rd{background:rgba(239,68,68,.09);color:#fca5a5;border:1px solid rgba(239,68,68,.18)}
 .btn-rd:hover{background:rgba(239,68,68,.18)}
 .btn-row{display:flex;gap:9px;flex-wrap:wrap}
 .geo-ind{display:flex;align-items:center;gap:9px;padding:11px 15px;border-radius:11px;
-  background:var(--lime4);border:1px solid rgba(168,230,61,.24);
+  background:var(--lime4);border:1px solid rgba(201,162,39,.24);
   margin-top:13px;font-size:.83rem;color:var(--lime);font-weight:500}
 .g-dot{width:7px;height:7px;border-radius:50%;background:var(--lime);animation:pls 2s infinite;flex-shrink:0}
+.push-scope-row{display:flex;flex-direction:column;gap:11px;margin-top:4px}
+.rline{display:flex;align-items:center;gap:11px;font-size:.86rem;cursor:pointer;user-select:none}
+.rline input{accent-color:var(--lime)}
+.push-user-box{margin-top:14px}
+.push-user-list{max-height:260px;overflow:auto;border:1px solid rgba(201,162,39,.14);border-radius:14px;padding:10px;background:rgba(0,0,0,.22)}
+.push-u-row{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:10px;cursor:pointer;font-size:.82rem;transition:background .15s}
+.push-u-row:hover{background:var(--lime4)}
+.push-u-row .em{margin-left:auto;font-size:.72rem;color:var(--muted);max-width:42%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* VIDEO MODAL */
 .vid-ov{position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.9);
   backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center;
   padding:20px;opacity:0;pointer-events:none;transition:opacity .28s}
 .vid-ov.open{opacity:1;pointer-events:all}
-.vid-modal{background:var(--bg2);border:1px solid rgba(168,230,61,.18);border-radius:22px;
+.vid-modal{background:var(--bg2);border:1px solid rgba(201,162,39,.18);border-radius:22px;
   padding:22px;max-width:520px;width:100%;position:relative;
   transform:scale(.94);transition:transform .28s}
 .vid-ov.open .vid-modal{transform:scale(1)}
@@ -195,7 +208,7 @@ tr:hover td{background:rgba(168,230,61,.025)}
   display:flex;flex-direction:column;gap:9px}
 .toast{padding:11px 16px;border-radius:12px;max-width:285px;font-size:.8rem;
   font-weight:500;animation:fadeUp .28s ease}
-.t-ok{background:var(--lime3);border:1px solid rgba(168,230,61,.38);color:var(--lime)}
+.t-ok{background:var(--lime3);border:1px solid rgba(201,162,39,.38);color:var(--lime)}
 .t-err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.35);color:#fca5a5}
 .spinner{width:15px;height:15px;border:2px solid transparent;border-top-color:currentColor;border-radius:50%;animation:spin .7s linear infinite}
 
@@ -226,7 +239,7 @@ tr:hover td{background:rgba(168,230,61,.025)}
 
 /* Bottom nav for mobile */
 .bot-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:55;
-  background:var(--bg2);border-top:1px solid rgba(168,230,61,.09);
+  background:var(--bg2);border-top:1px solid rgba(201,162,39,.09);
   padding:8px 4px 10px;gap:0}
 @media(max-width:900px){
   .bot-nav{display:flex}
@@ -251,8 +264,8 @@ tr:hover td{background:rgba(168,230,61,.025)}
     <span></span><span></span><span></span>
   </button>
   <div class="logo">
-    <div class="ico">🎓</div>
-    UTT<span>LOKO</span>
+    <div class="ico">Λ</div>
+    Lambda<span> Admin</span>
     <span class="badge">ADMIN</span>
   </div>
   <div class="spacer"></div>
@@ -262,8 +275,8 @@ tr:hover td{background:rgba(168,230,61,.025)}
 <!-- SIDEBAR -->
 <aside class="sb" id="sidebar">
   <div class="sb-logo">
-    <div class="sb-ico">🎓</div>
-    UTT<span>LOKO</span>
+    <div class="sb-ico">Λ</div>
+    Lambda<span> Admin</span>
     <span class="sb-badge">ADMIN</span>
     <button class="sb-close" onclick="closeSidebar()">✕</button>
   </div>
@@ -272,10 +285,11 @@ tr:hover td{background:rgba(168,230,61,.025)}
     <div class="ni on" data-sec="dashboard" onclick="goSec('dashboard',this)"><span class="ic">📊</span>Tableau de bord</div>
     <div class="ni" data-sec="location" onclick="goSec('location',this)"><span class="ic">📍</span>Localisation GPS</div>
     <div class="sb-sec">Gestion</div>
-    <div class="ni" data-sec="users" onclick="goSec('users',this)"><span class="ic">👥</span>Enseignants</div>
+    <div class="ni" data-sec="users" onclick="goSec('users',this)"><span class="ic">👥</span>Personnel</div>
     <div class="ni" data-sec="clockins" onclick="goSec('clockins',this)"><span class="ic">⏱</span>Pointages</div>
     <div class="ni" data-sec="retards" onclick="goSec('retards',this)"><span class="ic">⚠️</span>Retards & Explic.</div>
     <div class="sb-sec">Système</div>
+    <div class="ni" data-sec="push" onclick="goSec('push',this)"><span class="ic">🔔</span>Notifications push</div>
     <div class="ni" data-sec="settings" onclick="goSec('settings',this)"><span class="ic">⚙️</span>Paramètres</div>
     <div class="ni" onclick="location.href='index.html'"><span class="ic">🏠</span>Accueil</div>
   </nav>
@@ -318,7 +332,7 @@ tr:hover td{background:rgba(168,230,61,.025)}
       <div class="pg-sub" id="dash-date">—</div>
     </div>
     <div class="mc-grid">
-      <div class="mc lime"><div class="mc-n" id="mc-t">—</div><div class="mc-l">Enseignants</div></div>
+      <div class="mc lime"><div class="mc-n" id="mc-t">—</div><div class="mc-l">Collaborateurs</div></div>
       <div class="mc lime"><div class="mc-n" id="mc-p">—</div><div class="mc-l">Présents</div></div>
       <div class="mc org"><div class="mc-n" id="mc-l">—</div><div class="mc-l">Retards</div></div>
       <div class="mc blue"><div class="mc-n" id="mc-e">—</div><div class="mc-l">Explications</div></div>
@@ -327,13 +341,13 @@ tr:hover td{background:rgba(168,230,61,.025)}
       <div class="card">
         <div class="card-h">📋 Derniers pointages</div>
         <div class="card-sub">Activité du jour en temps réel</div>
-        <div class="tbl-w"><table><thead><tr><th>Enseignant</th><th>Heure</th><th>Type</th><th>Statut</th></tr></thead>
+        <div class="tbl-w"><table><thead><tr><th>Collaborateur</th><th>Heure</th><th>Type</th><th>Statut</th></tr></thead>
         <tbody id="dash-ck"><tr><td colspan="4" style="text-align:center;color:var(--muted);padding:18px">Chargement...</td></tr></tbody></table></div>
       </div>
       <div class="card">
         <div class="card-h">⚠️ Dernières explications</div>
         <div class="card-sub">Questionnaires de retard reçus</div>
-        <div class="tbl-w"><table><thead><tr><th>Enseignant</th><th>Date</th><th>Raison</th></tr></thead>
+        <div class="tbl-w"><table><thead><tr><th>Collaborateur</th><th>Date</th><th>Raison</th></tr></thead>
         <tbody id="dash-ex"><tr><td colspan="3" style="text-align:center;color:var(--muted);padding:18px">Aucune</td></tr></tbody></table></div>
       </div>
     </div>
@@ -345,7 +359,7 @@ tr:hover td{background:rgba(168,230,61,.025)}
       <div>
         <div class="crumb">Admin / <span>Localisation GPS</span></div>
         <div class="pg-title">Localisation GPS</div>
-        <div class="pg-sub">Définissez les coordonnées exactes de l'établissement</div>
+        <div class="pg-sub">Coordonnées du site autorisé pour le pointage</div>
       </div>
       <button class="btn btn-ol" onclick="getMyPos()">📍 Ma position actuelle</button>
     </div>
@@ -359,7 +373,7 @@ tr:hover td{background:rgba(168,230,61,.025)}
       </div>
       <div class="fr">
         <div class="fg"><label class="fl">Rayon autorisé (mètres)</label><input type="number" class="fi" id="loc-r" placeholder="200" value="200" min="50" max="2000"></div>
-        <div class="fg"><label class="fl">Nom de l'établissement</label><input type="text" class="fi" id="loc-nm" placeholder="UTT LOKO — Campus Principal"></div>
+        <div class="fg"><label class="fl">Nom du site</label><input type="text" class="fi" id="loc-nm" placeholder="Lambda — Siège"></div>
       </div>
       <div class="geo-ind" id="geo-ind" style="display:none">
         <span class="g-dot"></span><span id="geo-ind-txt">—</span>
@@ -376,9 +390,9 @@ tr:hover td{background:rgba(168,230,61,.025)}
   <div class="sec" id="s-users">
     <div class="pg-hd-row">
       <div>
-        <div class="crumb">Admin / <span>Enseignants</span></div>
-        <div class="pg-title">Gestion des enseignants</div>
-        <div class="pg-sub">Liste complète des comptes inscrits dans Firestore</div>
+        <div class="crumb">Admin / <span>Personnel</span></div>
+        <div class="pg-title">Gestion du personnel</div>
+        <div class="pg-sub">Comptes enregistrés dans Firestore</div>
       </div>
       <div>
         <input type="text" class="fi" id="srch" placeholder="🔍 Rechercher..." oninput="filterUsers()">
@@ -387,7 +401,7 @@ tr:hover td{background:rgba(168,230,61,.025)}
     <div class="card">
       <div class="tbl-w">
         <table>
-          <thead><tr><th>Enseignant</th><th>Contact</th><th>Département</th><th>Rôle</th><th>Créé le</th><th>Actions</th></tr></thead>
+          <thead><tr><th>Collaborateur</th><th>Contact</th><th>Service</th><th>Rôle</th><th>Créé le</th><th>Actions</th></tr></thead>
           <tbody id="users-tb"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:22px">Chargement...</td></tr></tbody>
         </table>
       </div>
@@ -413,7 +427,7 @@ tr:hover td{background:rgba(168,230,61,.025)}
     <div class="card">
       <div class="tbl-w">
         <table>
-          <thead><tr><th>Enseignant</th><th>Type</th><th>Heure</th><th>Statut</th><th>Vidéo / Face</th></tr></thead>
+          <thead><tr><th>Collaborateur</th><th>Type</th><th>Heure</th><th>Statut</th><th>Vidéo / Face</th></tr></thead>
           <tbody id="ck-tb"><tr><td colspan="5" style="text-align:center;color:var(--muted);padding:22px">Sélectionnez une date</td></tr></tbody>
         </table>
       </div>
@@ -425,14 +439,44 @@ tr:hover td{background:rgba(168,230,61,.025)}
     <div class="pg-hd">
       <div class="crumb">Admin / <span>Retards</span></div>
       <div class="pg-title">Retards & Explications</div>
-      <div class="pg-sub">Tous les questionnaires soumis par les enseignants</div>
+      <div class="pg-sub">Questionnaires de retard soumis par le personnel</div>
     </div>
     <div class="card">
       <div class="tbl-w">
         <table>
-          <thead><tr><th>Enseignant</th><th>Date</th><th>Heure</th><th>Raison</th><th>Détails</th></tr></thead>
+          <thead><tr><th>Collaborateur</th><th>Date</th><th>Heure</th><th>Raison</th><th>Détails</th></tr></thead>
           <tbody id="ret-tb"><tr><td colspan="5" style="text-align:center;color:var(--muted);padding:22px">Chargement...</td></tr></tbody>
         </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PUSH / FCM -->
+  <div class="sec" id="s-push">
+    <div class="pg-hd">
+      <div class="crumb">Admin / <span>Notifications</span></div>
+      <div class="pg-title">Notifications push (FCM)</div>
+      <div class="pg-sub">Envoi via l’API HTTP v1 (Firebase Admin). Les collaborateurs doivent accepter les notifications depuis leur espace.</div>
+    </div>
+    <div class="card">
+      <div class="card-h">Message général ou ciblé</div>
+      <div class="card-sub">Tout le personnel avec un token FCM enregistré, ou une sélection de profils.</div>
+      <div class="fg"><label class="fl">Titre</label><input type="text" class="fi" id="push-title" placeholder="Annonce Lambda"></div>
+      <div class="fg"><label class="fl">Corps du message</label><textarea class="fi" id="push-body" style="min-height:100px;resize:vertical;padding-top:12px" placeholder="Votre message..."></textarea></div>
+      <div class="fg">
+        <label class="fl">Destinataires</label>
+        <div class="push-scope-row">
+          <label class="rline"><input type="radio" name="push-scope" value="all" checked> Tous les appareils enregistrés (FCM)</label>
+          <label class="rline"><input type="radio" name="push-scope" value="selected"> Sélectionner des collaborateurs</label>
+        </div>
+      </div>
+      <div id="push-user-box" class="push-user-box" style="display:none">
+        <div class="fl">Sélection</div>
+        <div id="push-user-list" class="push-user-list"></div>
+      </div>
+      <div class="btn-row" style="margin-top:16px">
+        <button class="btn btn-lime" onclick="sendPushBroadcast()">📤 Envoyer</button>
+        <button class="btn btn-ol" type="button" onclick="renderPushUserList()">🔄 Rafraîchir la liste</button>
       </div>
     </div>
   </div>
@@ -524,8 +568,8 @@ async function hashPass(p){const b=await crypto.subtle.digest('SHA-256',new Text
 /* ── DASHBOARD ── */
 async function initDash(){
   const us=await getDocs(collection(db,'users'));
-  let cnt=0;us.forEach(d=>{if(d.data().role==='teacher')cnt++;});
-  document.getElementById('mc-t').textContent=us.size;
+  let collab=0;us.forEach(d=>{if(d.data().role!=='admin')collab++;});
+  document.getElementById('mc-t').textContent=collab;
 
   const todayKey=new Date().toISOString().slice(0,10).replace(/-/g,'');
   const ck=await getDocs(collection(db,`clockins_${todayKey}`));
@@ -569,7 +613,7 @@ function renderUsers(data){
   tbody.innerHTML=entries.map(([uid,u])=>{
     const av=u.photoURL?`<img src="${u.photoURL}" crossorigin="anonymous" referrerpolicy="no-referrer">`:`<div class="av-fb">${(u.prenom||'?')[0]}</div>`;
     const cr=u.createdAt?.toDate?.()?.toLocaleDateString('fr-FR')||'—';
-    const rb=u.role==='admin'?'<span class="badge b-blue">Admin</span>':'<span class="badge b-lime">Enseignant</span>';
+    const rb=u.role==='admin'?'<span class="badge b-blue">Admin</span>':'<span class="badge b-lime">Collaborateur</span>';
     return`<tr>
       <td><div class="av-c">${av}<div><div class="av-nm">${u.prenom} ${u.nom}</div><div class="av-em">${u.email}</div></div></div></td>
       <td>${u.contact||'—'}</td><td>${u.dept||'—'}</td><td>${rb}</td><td>${cr}</td>
@@ -612,7 +656,7 @@ window.loadCKDate=async()=>{
       window._ckRows['r'+i]=r;
       mediaTd=`<video class="face-vid-thumb" src="${r.faceVideoURL}" onclick="openVidModal('r${i}')" title="Cliquer pour voir"></video>`;
     }else if(r.faceBase64){
-      mediaTd=`<img src="${r.faceBase64}" style="width:40px;height:32px;border-radius:7px;object-fit:cover;vertical-align:middle;border:1px solid rgba(168,230,61,.2)">`;
+      mediaTd=`<img src="${r.faceBase64}" style="width:40px;height:32px;border-radius:7px;object-fit:cover;vertical-align:middle;border:1px solid rgba(201,162,39,.2)">`;
     }
     const bf=r.faceOk?`<span class="badge b-lime">✓ ${mediaTd}</span>`:`<span class="badge b-red">✗ Non</span>`;
     return`<tr><td>${r.userName||'—'}</td><td>${r.type}</td><td>${t}</td><td>${bs}</td><td>${bf}</td></tr>`;
@@ -626,7 +670,7 @@ window.openVidModal=key=>{
   const p=document.getElementById('vid-player');
   p.src=r.faceVideoURL;p.play();
   document.getElementById('vid-info').innerHTML=`
-    <div class="vi-box"><div class="vi-l">Enseignant</div><div class="vi-v">${r.userName||'—'}</div></div>
+    <div class="vi-box"><div class="vi-l">Collaborateur</div><div class="vi-v">${r.userName||'—'}</div></div>
     <div class="vi-box"><div class="vi-l">Département</div><div class="vi-v">${r.dept||'—'}</div></div>
     <div class="vi-box"><div class="vi-l">Type</div><div class="vi-v">${r.type||'—'}</div></div>
     <div class="vi-box"><div class="vi-l">Heure</div><div class="vi-v">${new Date(r.tsMs).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</div></div>
@@ -725,8 +769,8 @@ function placeMk(lat,lng){
   if(_mk){_map.removeLayer(_mk);_mk=null;}
   if(_cir){_map.removeLayer(_cir);_cir=null;}
   const rad=parseInt(document.getElementById('loc-r')?.value)||200;
-  _mk=L.marker([lat,lng],{icon:L.divIcon({html:`<div style="background:#a8e63d;width:14px;height:14px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.5)"></div>`,iconSize:[14,14],iconAnchor:[7,7]})}).addTo(_map);
-  _cir=L.circle([lat,lng],{radius:rad,color:'#a8e63d',fillColor:'#a8e63d',fillOpacity:.08,weight:2}).addTo(_map);
+  _mk=L.marker([lat,lng],{icon:L.divIcon({html:`<div style="background:#c9a227;width:14px;height:14px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.5)"></div>`,iconSize:[14,14],iconAnchor:[7,7]})}).addTo(_map);
+  _cir=L.circle([lat,lng],{radius:rad,color:'#c9a227',fillColor:'#c9a227',fillOpacity:.08,weight:2}).addTo(_map);
   _map.setView([lat,lng],16);
 }
 window.getMyPos=()=>{
@@ -742,7 +786,7 @@ window.saveLoc=async()=>{
   const lat=parseFloat(document.getElementById('loc-lat').value);
   const lng=parseFloat(document.getElementById('loc-lng').value);
   const radius=parseInt(document.getElementById('loc-r').value)||200;
-  const name=document.getElementById('loc-nm').value.trim()||'UTT LOKO';
+  const name=document.getElementById('loc-nm').value.trim()||'Lambda — Siège';
   if(isNaN(lat)||isNaN(lng)){toast('Coordonnées invalides','err');return;}
   await setDoc(doc(db,'config','location'),{lat,lng,radius,name,updatedAt:serverTimestamp()});
   const ind=document.getElementById('geo-ind');
@@ -768,8 +812,8 @@ window.loadLoc=async()=>{
 window.exportCSV=()=>{
   const rows=[...document.querySelectorAll('#ck-tb tr')];
   const csv=rows.map(r=>[...r.querySelectorAll('td')].map(td=>td.textContent.trim()).join(',')).join('\n');
-  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent('Enseignant,Type,Heure,Statut,Face\n'+csv);
-  a.download='pointages_uttloko.csv';a.click();
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent('Collaborateur,Type,Heure,Statut,Face\n'+csv);
+  a.download='pointages_lambda.csv';a.click();
 };
 
 /* ── LOGOUT ── */
@@ -779,6 +823,39 @@ window.doLogout=()=>{sessionStorage.removeItem('uttloko_user');location.href='in
 function rLabel(r){return{transport:'Transport',sante:'Santé',famille:'Famille',meteo:'Météo',admin:'Admin',autre:'Autre'}[r]||r||'—';}
 function toast(msg,type){const d=document.createElement('div');d.className='toast t-'+type;d.textContent=msg;document.getElementById('toasts').appendChild(d);setTimeout(()=>d.remove(),4000);}
 window.toast=toast;
+
+/* ── PUSH FCM (documents traités par Cloud Function Admin SDK / HTTP v1) ── */
+window.renderPushUserList=()=>{
+  const box=document.getElementById('push-user-list');
+  const entries=Object.entries(window._allUsers||{});
+  if(!entries.length){box.innerHTML='<div style="text-align:center;color:var(--muted);padding:16px;font-size:.83rem">Chargement… ou ouvrez l’onglet Personnel.</div>';return;}
+  box.innerHTML=entries.map(([uid,u])=>`<label class="push-u-row"><input type="checkbox" class="push-u-cb" value="${uid}"> <span>${u.prenom||''} ${u.nom||''}</span> <span class="em">${u.email||''}</span></label>`).join('');
+};
+document.querySelectorAll('input[name="push-scope"]').forEach(r=>{
+  r.addEventListener('change',()=>{
+    const sel=document.querySelector('input[name="push-scope"]:checked').value==='selected';
+    document.getElementById('push-user-box').style.display=sel?'block':'none';
+    if(sel)window.renderPushUserList();
+  });
+});
+window.sendPushBroadcast=async()=>{
+  const title=document.getElementById('push-title').value.trim();
+  const body=document.getElementById('push-body').value.trim();
+  if(!title||!body){toast('Titre et message requis','err');return;}
+  const scope=document.querySelector('input[name="push-scope"]:checked').value==='all'?'all':'selected';
+  let userIds=[];
+  if(scope==='selected'){
+    document.querySelectorAll('.push-u-cb:checked').forEach(cb=>userIds.push(cb.value));
+    if(!userIds.length){toast('Sélectionnez au moins une personne','err');return;}
+  }
+  try{
+    await addDoc(collection(db,'pushBroadcasts'),{title,body,scope,userIds,createdBy:A.uid,createdAt:serverTimestamp(),processed:false});
+    toast('File d’envoi créée — traitement FCM côté serveur.','ok');
+    document.getElementById('push-title').value='';
+    document.getElementById('push-body').value='';
+  }catch(e){console.error(e);toast('Erreur Firestore','err');}
+};
+window.loadUsers=loadUsers;
 
 /* ── INIT ── */
 initDash();loadUsers();loadRetards();loadSettings();
@@ -815,6 +892,7 @@ function goSec(id,el){
   if(window.innerWidth<=900)closeSidebar();
 
   if(id==='clockins')window.loadCKDate&&loadCKDate();
+  if(id==='push')window.loadUsers().then(()=>window.renderPushUserList());
 }
 </script>
 </body>
